@@ -42,16 +42,23 @@ int main(int argc, char** argv )
      
   /* attend la connection d'un client */
   clilen = sizeof (cli_addr);
-  newsockfd = accept (sockfd,(struct sockaddr*) &cli_addr, &clilen);
-  if (newsockfd<0) {printf ("accept error\n"); exit(0);}
-  printf ("connection accepted\n");
 
+  while (1) {
+    newsockfd = accept (sockfd,(struct sockaddr*) &cli_addr, &clilen);
+    if (newsockfd<0) {printf ("accept error\n"); exit(0);}
+    printf ("connection accepted\n");
+    int pid = fork();
+    if (pid == 0) {
+    break;
+    }
+  }
   
   while (1){ 
     while (read(newsockfd,&c,1)!=1);
     if (c == EOF) break;
     printf("%c",c);
   }
+  printf("disconnected\n");
   shutdown (sockfd, 2);  
    /*  attention il s'agit d'une boucle infinie 
     *  le socket nn'est jamais ferme !

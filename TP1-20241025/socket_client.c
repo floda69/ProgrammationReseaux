@@ -45,6 +45,8 @@ int main(int argc, char** argv )
   {
     c = getchar();
     write(sockfd, &c, 1);
+    if (c == EOF) break;
   }
+  close(sockfd);
 
 }
