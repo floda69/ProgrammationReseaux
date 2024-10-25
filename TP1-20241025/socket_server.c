@@ -48,8 +48,9 @@ int main(int argc, char** argv )
 
   
   while (1)
-   { while (read(newsockfd,&c,1)!=1);
-     printf("%c",c); 
+   { while (read(newsockfd,&c,1)!=0);
+     printf("%c",c);
+     shutdown (sockfd, 2);
    }
       
    /*  attention il s'agit d'une boucle infinie 

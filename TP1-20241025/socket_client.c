@@ -41,13 +41,19 @@ int main(int argc, char** argv )
     
   
   /* repete dans le socket tout ce qu'il entend */
-  while (1) {c=getchar();write (sockfd,&c,1);}
-  
-  
-  /*  attention il s'agit d'une boucle infinie 
-   *  le socket n'est jamais ferme !
-   */
-   
-   return 1;
+  int stop = 0;
+  while (!stop)
+  {
+    if (c = getchar() != EOF)
+    {
+      write(sockfd, EOF, 1);
+      shutdown (sockfd, 2);
+      stop = 1;
+    }
+    else
+    {
+      write(sockfd, &c, 1);
+    }
+  }
 
 }
