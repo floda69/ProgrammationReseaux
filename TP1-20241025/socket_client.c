@@ -41,16 +41,9 @@ int main(int argc, char** argv )
     
   
   /* repete dans le socket tout ce qu'il entend */
-  int stop = 0;
-  while (!stop)
+  while (1)
   {
-    if (c = getchar() != EOF)
-    {
-      write(sockfd, EOF, 1);
-      shutdown (sockfd, 2);
-      stop = 1;
-    }
-    else
+    if (c = getchar() != 1)
     {
       write(sockfd, &c, 1);
     }
