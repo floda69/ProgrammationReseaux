@@ -43,10 +43,8 @@ int main(int argc, char** argv )
   /* repete dans le socket tout ce qu'il entend */
   while (1)
   {
-    if (c = getchar() != 1)
-    {
-      write(sockfd, &c, 1);
-    }
+    c = getchar();
+    write(sockfd, &c, 1);
   }
 
 }
