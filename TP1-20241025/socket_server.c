@@ -47,12 +47,12 @@ int main(int argc, char** argv )
   printf ("connection accepted\n");
 
   
-  while (1)
-   { while (read(newsockfd,&c,1)!=0);
-     printf("%c",c);
-     shutdown (sockfd, 2);
-   }
-      
+  while (1){ 
+    while (read(newsockfd,&c,1)!=1);
+    if (c == EOF) break;
+    printf("%c",c);
+  }
+  shutdown (sockfd, 2);  
    /*  attention il s'agit d'une boucle infinie 
     *  le socket nn'est jamais ferme !
     */
