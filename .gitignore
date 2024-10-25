@@ -29,6 +29,11 @@
 *.dylib
 
 # Executables
+TP1-20241025/socket_client
+TP1-20241025/socket_clt
+TP1-20241025/socket_server
+TP1-20241025/socket_srv
+
 *.exe
 *.out
 *.app
