@@ -1,0 +1,97 @@
+<h1 id="tp2---utilisation-de-rpc-en-c">TP2 - Utilisation de RPC en C</h1>
+<h1 id="installation-et-test-de-lapplication-rdict">1 - Installation et test de l’application rdict</h1>
+<h2 id="installation-de-larchive-rdict">1.1 - Installation de l’archive <code>rdict</code></h2>
+<p>Récupérez l’archive <code>tp_rpc.zip</code> qui se trouve sur le Moodle du cours. Installez-la dans le répertoire de votre choix. Puis décompressez là avec i</p>
+<hr />
+<pre><code>     unzip tp_rcp.zip</code></pre>
+<hr />
+<p>L’application client-serveur <code>rdict</code> a été initialement conçue par Comer et Stevens pour servir d’exemple dans leur livre <em>Internetworking with TCP/IP Vol 3: Client-Server programming and Applications , Prentice-Hall</em>.</p>
+<h2 id="création-des-programmes-client-et-serveur">1.2 - Création des programmes client et serveur</h2>
+<p>L’archive contient tous les fichiers source en C, le fichier source en langage RPC (RPCL) <code>rdict.x</code> ainsi qu’un fichier <code>Makefile</code>.</p>
+<p>Commencez par regarder le <code>Makefile</code> afin de comprendre l’appel à <code>rpcgen</code>, et la création des exécutables du serveur et du client. Il ne reste plus qu’à lancer <code>make</code> , ce qui a pour effet de faire générer par <code>rpcgen</code> (avec le fichier RPCL <code>rdict.x</code>) le stub côté client <code>rdict_clnt.c</code> , le skeleton côté serveur <code>rdict_svc.c</code>, un fichier annexe <code>rdict_xdr.c</code> dont on ne se souciera pas pour ce premier exercice.</p>
+<blockquote>
+<p><strong>Exercice 1.</strong> compiler le programme client <code>rdict</code> et le programme serveur <code>rdictd</code>.</p>
+</blockquote>
+<h2 id="test">1.3. - Test</h2>
+<p>Pour les besoins du TP, nous ferons tourner le serveur sur la machine locale. Le client pourra être lancé depuis n’importe quelle machine, y compris la machine locale (en utilisant l’adresse 127.0.0.1).</p>
+<p>Pour lancer le serveur :</p>
+<hr />
+<pre><code>     rdictd
+</code></pre>
+<hr />
+<p>et pour lancer le client :</p>
+<hr />
+<pre><code>     rdict &lt;nom de la machine sur laquelle tourne le serveur&gt;`</code></pre>
+<hr />
+<blockquote>
+<p><strong>Exercice 2.</strong> Vérifiez qu’un programme RPC a bien été enregistré à votre nom sur la machine. Dans le cas de plusieurs serveurs <code>rdictd</code> lequel est choisi ?</p>
+</blockquote>
+<blockquote>
+<p><strong>Exercice 3.</strong> Vous pouvez ensuite entrer les commandes suivantes dans <code>rdict</code> :</p>
+</blockquote>
+<blockquote>
+<ul>
+<li><code>I</code> pour vider le dictionnaire</li>
+<li><code>i</code> pour insérer un mot</li>
+<li><code>s</code> pour supprimer un mot</li>
+<li><code>c</code> pour chercher si un mot existe</li>
+<li><code>q</code> pour quitter</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>Exercice 4.</strong> Utilisez à plusieurs le même serveur, et voyez l’effet de vos requêtes concurrentes.</p>
+</blockquote>
+<h1 id="programmation">2 - Programmation</h1>
+<h2 id="comprendre-ce-quil-se-passe">2.1 - Comprendre ce qu’il se passe</h2>
+<p>Pour la suite du TP, il est important de bien comprendre la manière dont les différentes parties de l’application collaborent entre-elles. En particulier, il est important de faire la différence entre les fichiers générés par <code>rpcgen</code> et ceux fournis dans l’archive <code>rdict.tar</code>.</p>
+<p>Du côté client, on pourra par exemple suivre la suite des appels de fonction entre l’entrée d’une commande par l’utilisateur (le code correspondant se trouve dans <code>rdict.c</code> et l’appel à la procédure distante correspondante, au niveau du stub client.</p>
+<p>Du côté serveur, on pourra suivre ce qu’il se passe depuis la réception d’un appel de procédure au niveau du stub serveur jusqu’à l’exécution de la fonction demandée.</p>
+<h2 id="ajout-de-fonctions-simples">2.2 - Ajout de fonctions simples</h2>
+<blockquote>
+<p><strong>Exercice 5.</strong> Ajoutez quelques fonctions à <code>rdict</code>, par exemple:</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>Ajouter une fonction qui retourne le nombre de mots dans le dictionnaire,</li>
+<li>Ajouter des traces du côté serveur,</li>
+<li>Ajouter une fonction qui retourne le mot suivant un mot donné,</li>
+<li>…</li>
+</ul>
+</blockquote>
+<h2 id="passage-de-types-complexes-dans-lapplication-rdict">2.3 - Passage de types complexes dans l’application <code>rdict</code></h2>
+<p>Le but de cet exercice est de montrer comment passer un type complexe en résultat d’une fonction RPC-C. Il est intéressant de voir que cela n’est pas simple alors que d’autres langages comme Java font cela de manière transparente…</p>
+<p>Nous voulons écrire une fonction <code>tous()</code> qui retourne tous les mots du dictionnaire. Le résultat de cette fonction sera une liste chaînée de mots. Une liste chaînée n’étant pas un type simple connu de <code>RPCGen</code>. Il faut la décrire dans le fichier <code>rdict.x.</code> Comme la syntaxe n’est pas facile nous la donnons ici</p>
+<hr />
+<pre><code>
+/* Pour lister tous les mots, Exemple de structure de données complexes */
+const MAXMOTLONG = 255;                   /* Taille maxi mot */
+typedef string chaine_mot&lt;MAXMOTLONG&gt;;    /* Un mot pour chaînage, indispensable */
+typedef struct  list_mots* suivant_list; /* Suivant dans la liste */
+
+struct list_mots {
+    chaine_mot mot;            /* Le mot */
+    suivant_list mot_suivant;  /* Pointeur vers le suivant */
+};
+</code></pre>
+<hr />
+<blockquote>
+<p><strong>Exercice 6.</strong> Ajoutez maintenant dans le fichier <code>rdict.x</code> la fonction <code>TOUS</code> qui retourne un résultat de type <code>suivant_list</code>.</p>
+</blockquote>
+<blockquote>
+<p><strong>Exercice 7.</strong> Modifiez ensuite les autres fichiers (<code>rdict.c</code>, <code>rdict_cif.c</code>, <code>rdict_server.c</code> et <code>rdict_srp.c</code>) pour terminer l’implantation.</p>
+</blockquote>
+<hr />
+<pre><code>
+/*------------------------------------------------------------------------
+ * tous : retourne tous les mots du dictionnaire
+ *------------------------------------------------------------------------
+ */
+suivant_list
+tous ()
+{
+...
+}</code></pre>
+<hr />
+<blockquote>
+<p><strong>Exercice 8.</strong> Tester le bon fonctionnement de votre implantation.</p>
+</blockquote>
