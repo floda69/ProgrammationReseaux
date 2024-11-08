@@ -10,7 +10,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "jeu.h"
+#include <stdbool.h>
+//#include "jeu.h"
 
 int main(int argc, char** argv )
 { 
@@ -52,26 +53,26 @@ int main(int argc, char** argv )
 
 }
 
-void deserialize_struct(char *buffer, Awale *jeu) {
-    size_t offset = 0;
+// void deserialize_struct(char *buffer, Awale *jeu) {
+//     size_t offset = 0;
 
-    // Copier plateau
-    memcpy(jeu->plateau, buffer + offset, sizeof(jeu->plateau));
-    offset += sizeof(jeu->plateau);
-    offset++; // Skip the newline character
+//     // Copier plateau
+//     memcpy(jeu->plateau, buffer + offset, sizeof(jeu->plateau));
+//     offset += sizeof(jeu->plateau);
+//     offset++; // Skip the newline character
 
-    // Copier score
-    memcpy(jeu->score, buffer + offset, sizeof(jeu->score));
-    offset += sizeof(jeu->score);
-    offset++; // Skip the newline character
+//     // Copier score
+//     memcpy(jeu->score, buffer + offset, sizeof(jeu->score));
+//     offset += sizeof(jeu->score);
+//     offset++; // Skip the newline character
 
-    // Copier j1
-    memcpy(jeu->j1, buffer + offset, sizeof(jeu->j1));
-    offset += sizeof(jeu->j1);
-    offset++; // Skip the newline character
+//     // Copier j1
+//     memcpy(jeu->j1, buffer + offset, sizeof(jeu->j1));
+//     offset += sizeof(jeu->j1);
+//     offset++; // Skip the newline character
 
-    // Copier j2
-    memcpy(jeu->j2, buffer + offset, sizeof(jeu->j2));
-    offset += sizeof(jeu->j2);
-    offset++; // Skip the newline character
-}
+//     // Copier j2
+//     memcpy(jeu->j2, buffer + offset, sizeof(jeu->j2));
+//     offset += sizeof(jeu->j2);
+//     offset++; // Skip the newline character
+// }
