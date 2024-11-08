@@ -43,7 +43,6 @@ int main(int argc, char** argv )
   /* attend la connection d'un client */
   clilen = sizeof (cli_addr);
   
-  /* Section Connection*/
   while (1) {
     newsockfd = accept (sockfd,(struct sockaddr*) &cli_addr, &clilen);
     if (newsockfd<0) {printf ("accept error\n"); exit(0);}
@@ -52,8 +51,27 @@ int main(int argc, char** argv )
     if (pid == 0) {
     break;
     }
-  } /* fin Section Connection*/
+  }
+
+  // protocole de communication: 
+  // 0 : 0 ou 1
   
+  // if 0, décoder : char* j1 name, char* j2 name, int j1 score, int j2 score, int** plateau [][]
+  // if 1, décoder : char* message
+  
+
+  // Initialisation du jeu
+
+  // boucle tant que non fin de jeu:
+
+  // dire au client de jouer
+
+  // attendre de recevoir chiffre du client
+  
+  // faire le coup
+
+  // envoyer jeu aux clients
+
   while (1){ 
     while (read(newsockfd,&c,1)!=1);
     if (c == EOF) break;
@@ -67,3 +85,23 @@ int main(int argc, char** argv )
 
    return 1;
  }
+
+void serialize_struct(struct MyStruct *s, char *buffer) {
+    size_t offset = 0;
+
+    // Copier arr2d
+    memcpy(buffer + offset, s->arr2d, sizeof(s->arr2d));
+    offset += sizeof(s->arr2d);
+
+    // Copier arr1d
+    memcpy(buffer + offset, s->arr1d, sizeof(s->arr1d));
+    offset += sizeof(s->arr1d);
+
+    // Copier str1
+    memcpy(buffer + offset, s->str1, sizeof(s->str1));
+    offset += sizeof(s->str1);
+
+    // Copier str2
+    memcpy(buffer + offset, s->str2, sizeof(s->str2));
+    offset += sizeof(s->str2);
+}
