@@ -41,7 +41,13 @@ int main(int argc, char** argv )
   if (connect(sockfd,(struct sockaddr*)&serv_addr,sizeof(serv_addr))<0)
     {printf("socket error\n");exit(0);}
     
-  
+    // demander nom
+    // envoyer un nom
+    // affichage menu
+
+    // 1- liste joueurs 
+    
+
   /* repete dans le socket tout ce qu'il entend */
   while (1)
   {

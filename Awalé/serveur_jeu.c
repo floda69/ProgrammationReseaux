@@ -60,7 +60,13 @@ int main(int argc, char** argv )
   
   // if 0, décoder : char* j1 name, char* j2 name, int j1 score, int j2 score, int** plateau [][]
   // if 1, décoder : char* message
-  
+  // if 2 : liste des joueurs (struct joueur)
+
+  // recevoir un nom
+  // ajouter aux joueur connectés
+  // => faire une struct joueur (name, pid, bio...)
+
+
 
   // Initialisation du jeu
 
