@@ -43,6 +43,7 @@ int main(int argc, char** argv )
   /* attend la connection d'un client */
   clilen = sizeof (cli_addr);
   
+  /* Section Connection*/
   while (1) {
     newsockfd = accept (sockfd,(struct sockaddr*) &cli_addr, &clilen);
     if (newsockfd<0) {printf ("accept error\n"); exit(0);}
@@ -51,7 +52,7 @@ int main(int argc, char** argv )
     if (pid == 0) {
     break;
     }
-  }
+  } /* fin Section Connection*/
   
   while (1){ 
     while (read(newsockfd,&c,1)!=1);

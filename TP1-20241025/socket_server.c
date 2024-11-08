@@ -43,7 +43,6 @@ int main(int argc, char** argv )
   /* attend la connection d'un client */
   clilen = sizeof (cli_addr);
   
-  signal(SIGCHLD,SIG_IGN)
   while (1) {
     newsockfd = accept (sockfd,(struct sockaddr*) &cli_addr, &clilen);
     if (newsockfd<0) {printf ("accept error\n"); exit(0);}
