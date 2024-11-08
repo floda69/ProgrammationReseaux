@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "jeu.h"
 
 int main(int argc, char** argv )
 { char datas[] = "hello\n";
@@ -86,22 +87,26 @@ int main(int argc, char** argv )
    return 1;
  }
 
-void serialize_struct(struct MyStruct *s, char *buffer) {
+void serialize_struct(Awale *jeu, char *buffer) {
     size_t offset = 0;
 
-    // Copier arr2d
-    memcpy(buffer + offset, s->arr2d, sizeof(s->arr2d));
-    offset += sizeof(s->arr2d);
+    // Copier plateau
+    memcpy(buffer + offset, jeu->plateau, sizeof(jeu->plateau));
+    offset += sizeof(jeu->plateau);
+    buffer[offset++] = '\n';
 
-    // Copier arr1d
-    memcpy(buffer + offset, s->arr1d, sizeof(s->arr1d));
-    offset += sizeof(s->arr1d);
+    // Copier score
+    memcpy(buffer + offset, jeu->score, sizeof(jeu->score));
+    offset += sizeof(jeu->score);
+    buffer[offset++] = '\n';
 
-    // Copier str1
-    memcpy(buffer + offset, s->str1, sizeof(s->str1));
-    offset += sizeof(s->str1);
+    // Copier j1
+    memcpy(buffer + offset, jeu->j1, sizeof(jeu->j1));
+    offset += sizeof(jeu->j1);
+    buffer[offset++] = '\n';
 
-    // Copier str2
-    memcpy(buffer + offset, s->str2, sizeof(s->str2));
-    offset += sizeof(s->str2);
+    // Copier j2
+    memcpy(buffer + offset, jeu->j2, sizeof(jeu->j2));
+    offset += sizeof(jeu->j2);
+    buffer[offset++] = '\n';
 }
