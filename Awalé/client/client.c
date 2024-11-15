@@ -34,9 +34,8 @@ static void app(const char *address, const char *name)
 
    /* send our name */
    write_server(sock, name);
-
-   int choice;
-   while (1)
+   int choice = -1 ;
+   while (choice != 0)
    {
       choice = menu();
       switch (choice)
@@ -53,7 +52,7 @@ static void app(const char *address, const char *name)
          break;
       case 3:
          //choix de communiquer
-         printf("ctrl + d pour quitter\n");
+         printf("entrez 'quit' pour quitter\n");
          while(1)
          {
             FD_ZERO(&rdfs);
@@ -73,7 +72,12 @@ static void app(const char *address, const char *name)
             /* something from standard input : i.e keyboard */
             if(FD_ISSET(STDIN_FILENO, &rdfs))
             {
-               if (fgets(buffer, BUF_SIZE - 1, stdin) == NULL) break;
+               (fgets(buffer, BUF_SIZE - 1, stdin));
+               if(!strcmp(buffer, "quit\n"))
+               {
+                  break;
+               }
+               else
                {
                   char *p = NULL;
                   p = strstr(buffer, "\n");
@@ -105,15 +109,7 @@ static void app(const char *address, const char *name)
       default:
          break;
       }
-      if (choice == 0)
-      {
-         break;
-      }
    }   
-}
-
-static void communiquer(buffer, sock, rdfs){
-   
 }
 
 static int init_connection(const char *address)
@@ -195,20 +191,13 @@ int main(int argc, char **argv)
 }
 
 int menu() {
-    int choix = 0;
-
-    printf("=== Menu ===\n");
-    printf("1. Option 1\n");
-    printf("2. Option 2\n");
-    printf("3. communiquer avec tout le monde <3\n");
-    printf("0. Quitter\n");
-    printf("Veuillez choisir une option : ");
-    
-    // Lecture et validation de l'entrée utilisateur
-    while (scanf("%d", &choix) != 1 || choix < 0 || choix > 3) {
-        printf("Entrée invalide. Veuillez entrer un nombre entre 0 et 3 : ");
-        while (getchar() != '\n'); // Nettoyage du buffer
-    }
-    
-    return choix;
+    int choix = -1;
+      printf("\n=== Menu ===\n");
+      printf("1. Option 1\n");
+      printf("2. Option 2\n");
+      printf("3. Option 3\n");
+      printf("0. Quitter\n");
+      printf("Veuillez choisir une option : ");   
+      scanf("%d", &choix);
+    return choix; // Retourne le choix valide
 }
