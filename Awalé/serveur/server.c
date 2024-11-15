@@ -119,8 +119,8 @@ static void app(void)
                {
                   //décode message
                   if (strncmp(buffer, NAME, 2) == 0)
-                        {
-                        }
+                  {
+                  }
                   else if (strncmp(buffer, PLAYERS_LIST, 2) == 0)
                   {
                      send_clients_list_on_demand(clients, client, actual);

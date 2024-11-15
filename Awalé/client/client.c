@@ -106,9 +106,35 @@ static void app(const char *address, const char *name)
          break;
 
       case 3:
-         write_server(sock, PLAYERS_LIST);
-         break;
+            write_server(sock, PLAYERS_LIST);
+            while (1){
+               FD_ZERO(&rdfs);
 
+               /* add STDIN_FILENO */
+               FD_SET(STDIN_FILENO, &rdfs);
+
+               /* add the socket */
+               FD_SET(sock, &rdfs);
+
+               if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+               {
+                  perror("select()");
+                  exit(errno);
+               }
+               if(FD_ISSET(sock, &rdfs))
+               {
+                  int n = read_server(sock, buffer);
+                  /* server down */
+                  if(n == 0)
+                  {
+                     printf("Server disconnected !\n");
+                     break;
+                  }
+                  puts(buffer);
+                  break;
+               }
+            }
+         break;
       default:
          break;
       }
