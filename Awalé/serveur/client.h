@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include "server.h"
+#include "../message.h"
 
 typedef struct
 {
