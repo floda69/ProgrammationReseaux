@@ -94,7 +94,6 @@ static void app(void)
          Client c = {csock};
          strncpy(c.name, buffer, BUF_SIZE - 1);
          send_new_connection_message_to_all_clients(clients, c, actual);
-         send_clients_list_on_demand(clients, c, actual);
          clients[actual] = c;
          actual++;
       }
@@ -119,7 +118,23 @@ static void app(void)
                }
                else
                {
-                  send_message_to_all_clients(clients, client, actual, buffer, 0);
+                  //décode message
+                  if (buffer[0] == NAME)
+                        {
+                        }
+                  else if (buffer[0] == PLAYERS_LIST)
+                  {
+                     buffer += 2;
+                     send_clients_list_on_demand(clients, c, actual);
+                  }
+                  else if (buffer[0] == CHAT_GENERAL)
+                  {
+                     buffer += 2;
+                     send_message_to_all_clients(clients, client, actual, buffer, 0);
+                  }
+                  else
+                  {
+                  }
                }
                break;
             }
