@@ -42,6 +42,7 @@ static void app(const char *address, const char *name)
       if (choice == 0)
       {
          //choix de quitter l'application
+         break;
       }
       else if (choice == 1)
       {
