@@ -139,7 +139,7 @@ bool fin_de_jeu(Awale *jeu)
 }
 
 // Fonction principale
-int main()
+int game()
 {
     Awale jeu = {.j1 = "toto", .j2 = "tutu"};
     initialiser_jeu(&jeu);

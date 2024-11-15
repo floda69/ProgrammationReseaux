@@ -6,6 +6,8 @@
 #define J1 0
 #define J2 1
 
+#include <stdbool.h>
+
 typedef struct {
     int plateau[2][NBR_CASES]; // 2 rangées de 6 cases
     int score[2];              // Scores des deux joueurs
@@ -33,5 +35,8 @@ void jouer_coup(Awale *jeu, int joueur, int case_choisie);
 
 // Vérification de fin de jeu
 bool fin_de_jeu(Awale *jeu);
+
+// Fonction principale
+int game();
 
 #endif// Structure pour le jeu d'Awalé
