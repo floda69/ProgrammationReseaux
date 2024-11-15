@@ -39,70 +39,81 @@ static void app(const char *address, const char *name)
    while (1)
    {
       choice = menu();
-      if (choice == 0)
+      switch (choice)
       {
+      case 0:
          //choix de quitter l'application
+         end_connection(sock);
+         break;
+      case 1:
+         //choix de lancer une game
+         break;
+      case 2:
+         //choix d'afficher les joueurs
+         break;
+      case 3:
+         //choix de communiquer
+         printf("ctrl + d pour quitter\n");
+         while(1)
+         {
+            FD_ZERO(&rdfs);
+
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
+
+            /* add the socket */
+            FD_SET(sock, &rdfs);
+
+            if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+
+            /* something from standard input : i.e keyboard */
+            if(FD_ISSET(STDIN_FILENO, &rdfs))
+            {
+               if (fgets(buffer, BUF_SIZE - 1, stdin) == NULL) break;
+               {
+                  char *p = NULL;
+                  p = strstr(buffer, "\n");
+                  if(p != NULL)
+                  {
+                     *p = 0;
+                  }
+                  else
+                  {
+                     /* fclean */
+                     buffer[BUF_SIZE - 1] = 0;
+                  }
+               }
+               write_server(sock, buffer);
+            }
+            else if(FD_ISSET(sock, &rdfs))
+            {
+               int n = read_server(sock, buffer);
+               /* server down */
+               if(n == 0)
+               {
+                  printf("Server disconnected !\n");
+                  break;
+               }
+               puts(buffer);
+            }
+         }
+         break;
+      default:
          break;
       }
-      else if (choice == 1)
+      if (choice == 0)
       {
-         //choix de jouer
+         break;
       }
-      else if (choice == 2)
-      {
-         //choix d'afficher les joueurs
-      }
-   }
+   }   
+}
 
-   while(1)
-   {
-      FD_ZERO(&rdfs);
-
-      /* add STDIN_FILENO */
-      FD_SET(STDIN_FILENO, &rdfs);
-
-      /* add the socket */
-      FD_SET(sock, &rdfs);
-
-      if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-      {
-         perror("select()");
-         exit(errno);
-      }
-
-      /* something from standard input : i.e keyboard */
-      if(FD_ISSET(STDIN_FILENO, &rdfs))
-      {
-         fgets(buffer, BUF_SIZE - 1, stdin);
-         {
-            char *p = NULL;
-            p = strstr(buffer, "\n");
-            if(p != NULL)
-            {
-               *p = 0;
-            }
-            else
-            {
-               /* fclean */
-               buffer[BUF_SIZE - 1] = 0;
-            }
-         }
-         write_server(sock, buffer);
-      }
-      else if(FD_ISSET(sock, &rdfs))
-      {
-         int n = read_server(sock, buffer);
-         /* server down */
-         if(n == 0)
-         {
-            printf("Server disconnected !\n");
-            break;
-         }
-         puts(buffer);
-      }
-   }
-
-   end_connection(sock);
+static void communiquer(buffer, sock, rdfs){
+   
 }
 
 static int init_connection(const char *address)
@@ -189,7 +200,7 @@ int menu() {
     printf("=== Menu ===\n");
     printf("1. Option 1\n");
     printf("2. Option 2\n");
-    printf("3. Option 3\n");
+    printf("3. communiquer avec tout le monde <3\n");
     printf("0. Quitter\n");
     printf("Veuillez choisir une option : ");
     
