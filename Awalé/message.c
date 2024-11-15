@@ -1,5 +1,12 @@
 #include "message.h"
 
+
+const char* serialize_name(const char *name){
+    char *s = malloc(strlen(NAME)+strlen(name)+1);
+    strcpy(s, NAME);
+    return(strcat(s, name));
+}
+
 void serialize_coup(Awale *jeu, char *buffer) {
     
     size_t offset = 0;

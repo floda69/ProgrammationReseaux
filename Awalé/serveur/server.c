@@ -94,6 +94,7 @@ static void app(void)
          Client c = {csock};
          strncpy(c.name, buffer, BUF_SIZE - 1);
          send_new_connection_message_to_all_clients(clients, c, actual);
+         send_clients_list_on_demand(clients, c, actual);
          clients[actual] = c;
          actual++;
       }
@@ -113,7 +114,7 @@ static void app(void)
                   closesocket(clients[i].sock);
                   remove_client(clients, i, &actual);
                   strncpy(buffer, client.name, BUF_SIZE - 1);
-                  strncat(buffer, " disconnected !", BUF_SIZE - strlen(buffer) - 1);
+                  strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
                   send_message_to_all_clients(clients, client, actual, buffer, 1);
                }
                else
@@ -178,11 +179,28 @@ static void send_new_connection_message_to_all_clients(Client *clients, Client n
       /* we don't send message to the sender */
       if (newClient.sock != clients[i].sock)
       {
-         strncpy(message, "Nouvelle connection de : ", sizeof message - strlen(message) - 1);
-         strncat(message, newClient.name, BUF_SIZE - 1);
+         strncpy(message, "Nouvelle connection de : ", BUF_SIZE - 1);
+         strncat(message, newClient.name, sizeof message - strlen(message) - 1);
          write_client(clients[i].sock, message);
       }
    }
+}
+
+static void send_clients_list_on_demand(Client *clients, Client client, int actual)
+{
+   int i = 0;
+   char message[BUF_SIZE];
+   message[0] = 0;
+   for (i = 0; i < actual; i++)
+   {
+      if (client.sock != clients[i].sock)
+      {
+         strncpy(message, "Liste des joueurs: \n", BUF_SIZE - 1);
+         strncat(message, clients[i].name, sizeof message - strlen(message) - 1);
+         strncat(message, "\n", sizeof message - strlen(message) - 1);
+      }
+   }
+   write_client(client.sock, message);
 }
 
 static int init_connection(void)

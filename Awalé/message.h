@@ -5,7 +5,10 @@
 #include "stdio.h"
 #include "string.h"
 
-#define PARTIE 1
+#define NAME 1
+#define CONNECTED_PLAYERS 2
+
+const char* serialize_name(const char *name);
 
 void serialize_coup(Awale *jeu, char *buffer);
 

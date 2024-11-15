@@ -45,6 +45,7 @@ static int read_client(SOCKET sock, char *buffer);
 static void write_client(SOCKET sock, const char *buffer);
 static void send_message_to_all_clients(Client *clients, Client client, int actual, const char *buffer, char from_server);
 static void send_new_connection_message_to_all_clients(Client *clients, Client newClient, int actual);
+static void send_clients_list_on_demand(Client *clients, Client client, int actual);
 static void remove_client(Client *clients, int to_remove, int *actual);
 static void clear_clients(Client *clients, int actual);
 
