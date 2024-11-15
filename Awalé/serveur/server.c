@@ -176,7 +176,7 @@ static void send_new_connection_message_to_all_clients(Client *clients, Client n
    for (i = 0; i < actual; i++)
    {
       /* we don't send message to the sender */
-      if (sender.sock != clients[i].sock)
+      if (newClient.sock != clients[i].sock)
       {
          strncpy(message, "Nouvelle connection de : ", sizeof message - strlen(message) - 1);
          strncat(message, newClient.name, BUF_SIZE - 1);
