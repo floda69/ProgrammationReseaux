@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "client.h"
+#include "../message.h"
 
 static void init(void)
 {
@@ -33,6 +34,7 @@ static void app(const char *address, const char *name)
    fd_set rdfs;
 
    /* send our name */
+   name = serialize_name(name);
    write_server(sock, name);
    int choice = -1 ;
    while (choice != 0)
@@ -41,14 +43,14 @@ static void app(const char *address, const char *name)
       switch (choice)
       {
       case 0:
-         //choix de quitter l'application
+         //choix quitter l'application
          end_connection(sock);
          break;
       case 1:
-         //choix de lancer une game
+         
          break;
       case 2:
-         //choix d'afficher les joueurs
+         
          break;
       case 3:
          //choix de communiquer
