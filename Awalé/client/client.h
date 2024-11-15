@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include "../message.h"
 #ifdef WIN32
 
 #include <winsock2.h>
