@@ -49,9 +49,6 @@ static void app(const char *address, const char *name)
          
          break;
       case 2:
-         
-         break;
-      case 3:
          //choix de communiquer
          printf("entrez 'quit' pour quitter\n");
          while(1)
@@ -107,6 +104,11 @@ static void app(const char *address, const char *name)
             }
          }
          break;
+         
+      case 3:
+         write_server(sock, PLAYERS_LIST);
+         break;
+
       default:
          break;
       }
