@@ -51,7 +51,6 @@ static void app(const char *address, const char *name)
       {
          //choix d'afficher les joueurs
       }
-
    }
 
    while(1)
