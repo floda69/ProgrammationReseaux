@@ -35,6 +35,7 @@ typedef struct in_addr IN_ADDR;
 
 #include "client.h"
 #include "../message.h"
+#include <string.h>
 
 static void init(void);
 static void end(void);

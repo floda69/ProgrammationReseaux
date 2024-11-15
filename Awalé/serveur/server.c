@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "server.h"
-#include "client.h"
 
 static void init(void)
 {
@@ -119,18 +118,16 @@ static void app(void)
                else
                {
                   //décode message
-                  if (buffer[0] == NAME)
+                  if (strncmp(buffer, NAME, 2) == 0)
                         {
                         }
-                  else if (buffer[0] == PLAYERS_LIST)
+                  else if (strncmp(buffer, PLAYERS_LIST, 2) == 0)
                   {
-                     buffer += 2;
-                     send_clients_list_on_demand(clients, c, actual);
+                     send_clients_list_on_demand(clients, client, actual);
                   }
-                  else if (buffer[0] == CHAT_GENERAL)
+                  else if (strncmp(buffer, CHAT_GENERAL, 2) == 0)
                   {
-                     buffer += 2;
-                     send_message_to_all_clients(clients, client, actual, buffer, 0);
+                     send_message_to_all_clients(clients, client, actual, buffer+2, 0);
                   }
                   else
                   {
