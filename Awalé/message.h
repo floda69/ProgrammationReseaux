@@ -1,7 +1,9 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "server.h"
+#include "client/jeu.h"
+#include "stdio.h"
+#include "string.h"
 
 #define PARTIE 1
 

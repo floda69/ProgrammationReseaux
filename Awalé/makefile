@@ -17,9 +17,20 @@ SERVEUR_EXEC = $(SERVEUR_DIR)/serveur_exec
 # Règle par défaut : compile les deux exécutables
 all: $(CLIENT_EXEC) $(SERVEUR_EXEC)
 
-# Compilation du client avec client.c et message.c
-$(CLIENT_EXEC): $(CLIENT_SOURCES) message.h
+# Compilation du client avec client.c, jeu.c et message.c
+$(CLIENT_EXEC): $(CLIENT_SOURCES)
 	$(CC) $(CFLAGS) -o $@ $(CLIENT_SOURCES)
 
 # Compilation du serveur avec serveur.c et message.c
-$(SERVEUR_EXEC): $(SERVEUR_SOURCES) message
+$(SERVEUR_EXEC): $(SERVEUR_SOURCES)
+	$(CC) $(CFLAGS) -o $@ $(SERVEUR_SOURCES)
+
+# Nettoyage des fichiers objets et exécutables
+clean:
+	rm -f $(CLIENT_EXEC) $(SERVEUR_EXEC)
+
+# Règle pour relancer la compilation après un nettoyage
+rebuild: clean all
+
+# Indique les règles qui ne correspondent pas à des fichiers
+.PHONY: all clean rebuild

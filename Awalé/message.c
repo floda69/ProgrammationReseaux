@@ -24,3 +24,28 @@ void serialize_coup(Awale *jeu, char *buffer) {
     offset += sizeof(jeu->j2);
     buffer[offset++] = '\n';
 }
+
+
+void deserialize_coup(Awale *jeu, char *buffer) {
+    size_t offset = 0;
+
+    // Copier plateau
+    memcpy(jeu->plateau, buffer + offset, sizeof(jeu->plateau));
+    offset += sizeof(jeu->plateau);
+    offset++; // Skip the newline character
+
+    // Copier score
+    memcpy(jeu->score, buffer + offset, sizeof(jeu->score));
+    offset += sizeof(jeu->score);
+    offset++; // Skip the newline character
+
+    // Copier j1
+    memcpy(jeu->j1, buffer + offset, sizeof(jeu->j1));
+    offset += sizeof(jeu->j1);
+    offset++; // Skip the newline character
+
+    // Copier j2
+    memcpy(jeu->j2, buffer + offset, sizeof(jeu->j2));
+    offset += sizeof(jeu->j2);
+    offset++; // Skip the newline character
+}

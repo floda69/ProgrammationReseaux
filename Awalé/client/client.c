@@ -35,6 +35,25 @@ static void app(const char *address, const char *name)
    /* send our name */
    write_server(sock, name);
 
+   int choice;
+   while (1)
+   {
+      choice = menu();
+      if (choice == 0)
+      {
+         //choix de quitter l'application
+      }
+      else if (choice == 1)
+      {
+         //choix de jouer
+      }
+      else if (choice == 2)
+      {
+         //choix d'afficher les joueurs
+      }
+
+   }
+
    while(1)
    {
       FD_ZERO(&rdfs);
@@ -162,4 +181,23 @@ int main(int argc, char **argv)
    end();
 
    return EXIT_SUCCESS;
+}
+
+int menu() {
+    int choix = 0;
+
+    printf("=== Menu ===\n");
+    printf("1. Option 1\n");
+    printf("2. Option 2\n");
+    printf("3. Option 3\n");
+    printf("0. Quitter\n");
+    printf("Veuillez choisir une option : ");
+    
+    // Lecture et validation de l'entrée utilisateur
+    while (scanf("%d", &choix) != 1 || choix < 0 || choix > 3) {
+        printf("Entrée invalide. Veuillez entrer un nombre entre 0 et 3 : ");
+        while (getchar() != '\n'); // Nettoyage du buffer
+    }
+    
+    return choix;
 }
