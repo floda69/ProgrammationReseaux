@@ -3,7 +3,6 @@
 
 const char* serialize_name(const char *name){
     char *s = malloc(strlen(NAME)+strlen(name)+1);
-    printf(s);
     strcpy(s, NAME);
     return(strcat(s, name));
 }
