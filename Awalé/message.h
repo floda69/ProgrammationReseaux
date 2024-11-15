@@ -4,8 +4,9 @@
 #include "client/jeu.h"
 #include "stdio.h"
 #include "string.h"
+#include <stdlib.h>
 
-#define NAME 1
+#define NAME "01"
 #define CONNECTED_PLAYERS 2
 
 const char* serialize_name(const char *name);
