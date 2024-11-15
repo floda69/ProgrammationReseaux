@@ -89,7 +89,7 @@ static void app(const char *address, const char *name)
                      buffer[BUF_SIZE - 1] = 0;
                   }
                }
-               write_server(sock, buffer);
+               write_server(sock, serialize_message(CHAT_GENERAL, buffer));
             }
             else if(FD_ISSET(sock, &rdfs))
             {
@@ -104,7 +104,7 @@ static void app(const char *address, const char *name)
             }
          }
          break;
-         
+
       case 3:
          write_server(sock, PLAYERS_LIST);
          break;

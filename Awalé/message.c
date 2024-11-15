@@ -1,10 +1,10 @@
 #include "message.h"
 
 
-const char* serialize_name(const char *name){
-    char *s = malloc(strlen(NAME)+strlen(name)+1);
-    strcpy(s, NAME);
-    return(strcat(s, name));
+const char* serialize_message(char *code, const char *message){
+    char *s = malloc(strlen(code)+strlen(message)+1);
+    strcpy(s, code);
+    return(strcat(s, message));
 }
 
 void serialize_coup(Awale *jeu, char *buffer) {
