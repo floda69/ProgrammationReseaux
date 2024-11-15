@@ -7,7 +7,8 @@
 #include <stdlib.h>
 
 #define NAME "01"
-#define CONNECTED_PLAYERS 2
+#define CHAT_GENERAL "02"
+#define PLAYERS_LIST "03"
 
 const char* serialize_name(const char *name);
 

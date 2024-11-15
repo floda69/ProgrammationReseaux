@@ -34,7 +34,7 @@ static void app(const char *address, const char *name)
    fd_set rdfs;
 
    /* send our name */
-   write_server(sock, serialize_name(name));
+   write_server(sock, name);
    int choice = -1 ;
    while (choice != 0)
    {
