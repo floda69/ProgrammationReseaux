@@ -92,7 +92,7 @@ static void app(void)
          FD_SET(csock, &rdfs);
 
          Client c = {csock};
-         strncpy(c.name, buffer+2, BUF_SIZE - 1);
+         strncpy(c.name, buffer, BUF_SIZE - 1);
          send_new_connection_message_to_all_clients(clients, c, actual);
          clients[actual] = c;
          actual++;
