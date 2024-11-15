@@ -14,6 +14,13 @@
 #include <stdbool.h>
 #include "jeu.h"
 
+typedef int SOCKET;
+typedef struct client {
+    char name[50];
+    SOCKET s;
+    char bio[100];
+};
+
 int main(int argc, char** argv )
 { char datas[] = "hello\n";
   int    sockfd,newsockfd,clilen,chilpid,ok,nleft,nbwriten;
@@ -94,7 +101,7 @@ int main(int argc, char** argv )
    return 1;
  }
 
-void serialize_struct(Awale *jeu, char *buffer) {
+void serialize_coup(Awale *jeu, char *buffer) {
     size_t offset = 0;
 
     // Copier plateau

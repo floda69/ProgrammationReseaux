@@ -3,8 +3,8 @@
 #include <errno.h>
 #include <string.h>
 
-#include "server.h"
-#include "client.h"
+#include "server2.h"
+#include "client2.h"
 
 static void init(void)
 {

@@ -59,7 +59,7 @@ int main(int argc, char** argv )
 
 }
 
-// void deserialize_struct(char *buffer, Awale *jeu) {
+// void deserialize_coup(char *buffer, Awale *jeu) {
 //     size_t offset = 0;
 
 //     // Copier plateau
