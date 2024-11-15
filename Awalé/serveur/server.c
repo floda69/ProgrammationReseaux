@@ -167,6 +167,26 @@ static void send_message_to_all_clients(Client *clients, Client sender, int actu
    }
 }
 
+static void send_new_connection_message_to_all_clients(Client *clients, Client sender, int actual, char from_server)
+{
+   int i = 0;
+   char message[BUF_SIZE];
+   message[0] = 0;
+   for(i = 0; i < actual; i++)
+   {
+      /* we don't send message to the sender */
+      if(sender.sock != clients[i].sock)
+      {
+         if(from_server == 0)
+         {
+            strncpy(message, "Nouvelle connection de : ", sizeof message - strlen(message) - 1);
+            strncat(message, sender.name, BUF_SIZE - 1);
+         }
+         write_client(clients[i].sock, message);
+      }
+   }
+}
+
 static int init_connection(void)
 {
    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
