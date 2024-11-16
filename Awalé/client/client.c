@@ -19,6 +19,10 @@ static void init(void)
 #endif
 }
 
+void flush_buffer(char *buffer, size_t size) {
+    memset(buffer, 0, size);
+}
+
 static void end(void)
 {
 #ifdef WIN32
@@ -88,6 +92,10 @@ static void app(const char *address, const char *name)
                      /* fclean */
                      buffer[BUF_SIZE - 1] = 0;
                   }
+               }
+               if (buffer[0] == '\0') //catch empty message
+               {
+                  continue;
                }
                write_server(sock, serialize_message(CHAT_GENERAL, buffer));
             }

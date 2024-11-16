@@ -91,8 +91,8 @@ static void app(void)
          FD_SET(csock, &rdfs);
 
          Client c = {csock};
-         //strncpy(c.name, buffer, BUF_SIZE - 1);
-         //send_new_connection_message_to_all_clients(clients, c, actual);
+         strncpy(c.name, buffer, BUF_SIZE - 1);
+         send_new_connection_message_to_all_clients(clients, c, actual);
          clients[actual] = c;
          actual++;
       }
@@ -111,9 +111,9 @@ static void app(void)
                {
                   closesocket(clients[i].sock);
                   remove_client(clients, i, &actual);
-                  // strncpy(buffer, client.name, BUF_SIZE - 1);
-                  // strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
-                  //send_message_to_all_clients(clients, client, actual, buffer, 1);
+                  strncpy(buffer, client.name, BUF_SIZE - 1);
+                  strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
+                  send_message_to_all_clients(clients, client, actual, buffer, 1);
                }
                else
                {
@@ -128,6 +128,10 @@ static void app(void)
                   else if (strncmp(buffer, CHAT_GENERAL, 2) == 0)
                   {
                      send_message_to_all_clients(clients, client, actual, buffer+2, 0);
+                  }
+                  else if (strncmp(buffer, NEW_GAME, 2) == 0)
+                  {
+                     search_opponent(clients, client, actual);
                   }
                   else
                   {
@@ -203,15 +207,22 @@ static void send_clients_list_on_demand(Client *clients, Client client, int actu
    int i = 0;
    char message[BUF_SIZE];
    message[0] = 0;
-   for (i = 0; i < actual; i++)
-   {
-      if (client.sock != clients[i].sock)
-      {
-         strncpy(message, "Liste des joueurs: \n", BUF_SIZE - 1);
-         strncat(message, clients[i].name, sizeof message - strlen(message) - 1);
-         strncat(message, "\n", sizeof message - strlen(message) - 1);
-      }
+   int clients_online = 0;
+   
+   strncpy(message, "Liste des joueurs: \n", BUF_SIZE - 1);
+   
+   for (i = 0; i < actual; i++) {
+       if (client.sock != clients[i].sock) {
+           strncat(message, clients[i].name, sizeof message - strlen(message) - 1);
+           strncat(message, "\n", sizeof message - strlen(message) - 1);
+           clients_online++;
+       }
    }
+   
+   if (clients_online == 0) {
+       strncpy(message, "Aucun autre joueur en ligne.\n", sizeof message - strlen(message) - 1);
+   }
+   
    write_client(client.sock, message);
 }
 
@@ -273,6 +284,21 @@ static void write_client(SOCKET sock, const char *buffer)
       perror("send()");
       exit(errno);
    }
+}
+
+static void search_opponent(Client *clients, Client client, int actual)
+{
+   int i = 0;
+   char message[BUF_SIZE];
+   message[0] = '\n';
+   int clients_online = 0;   
+   for (i = 0; i < actual; i++) {
+       if (client.sock != clients[i].sock) { //ajouter client not in game
+         strncpy(message, clients[i].name, BUF_SIZE - 1);
+         break;
+       }
+   }
+   write_client(client.sock, message);
 }
 
 int main(int argc, char **argv)
