@@ -9,6 +9,7 @@
 #define NAME "01"
 #define CHAT_GENERAL "02"
 #define PLAYERS_LIST "03"
+#define CHAT_PRIVE "04"
 
 const char* serialize_message(char *code, const char *message);
 

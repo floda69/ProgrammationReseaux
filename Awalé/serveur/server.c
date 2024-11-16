@@ -91,8 +91,8 @@ static void app(void)
          FD_SET(csock, &rdfs);
 
          Client c = {csock};
-         strncpy(c.name, buffer, BUF_SIZE - 1);
-         send_new_connection_message_to_all_clients(clients, c, actual);
+         //strncpy(c.name, buffer, BUF_SIZE - 1);
+         //send_new_connection_message_to_all_clients(clients, c, actual);
          clients[actual] = c;
          actual++;
       }
@@ -111,9 +111,9 @@ static void app(void)
                {
                   closesocket(clients[i].sock);
                   remove_client(clients, i, &actual);
-                  strncpy(buffer, client.name, BUF_SIZE - 1);
-                  strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
-                  send_message_to_all_clients(clients, client, actual, buffer, 1);
+                  // strncpy(buffer, client.name, BUF_SIZE - 1);
+                  // strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
+                  //send_message_to_all_clients(clients, client, actual, buffer, 1);
                }
                else
                {
