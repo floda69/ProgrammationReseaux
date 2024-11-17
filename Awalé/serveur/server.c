@@ -289,17 +289,12 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
    char message[BUF_SIZE];
    message[0] = '\n'; 
    for (i = 0; i < actual; i++) {
-<<<<<<< HEAD
        if (strcmp(buffer, clients[i].name) == 0) {
-=======
        if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0) {
->>>>>>> d2df1bbbac4f8bc166360e71e68a8930484aad6b
          strncpy(message, clients[i].name, BUF_SIZE - 1);
          break;
        }
    }
-   if (message[0] == '\n')
-      strncpy(message, "Joueur demandé indisponnible", BUF_SIZE - 1);
    write_client(client.sock, message);
 }
 
