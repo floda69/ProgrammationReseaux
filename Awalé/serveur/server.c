@@ -131,7 +131,7 @@ static void app(void)
                   }
                   else if (strncmp(buffer, NEW_GAME, 2) == 0)
                   {
-                     search_opponent(clients, client, actual);
+                     search_opponent(clients, client, actual, buffer+2);
                   }
                   else
                   {
@@ -286,14 +286,14 @@ static void write_client(SOCKET sock, const char *buffer)
    }
 }
 
-static void search_opponent(Client *clients, Client client, int actual)
+static void search_opponent(Client *clients, Client client, int actual, const char *buffer)
 {
    int i = 0;
    char message[BUF_SIZE];
    message[0] = '\n';
    int clients_online = 0;   
    for (i = 0; i < actual; i++) {
-       if (client.sock != clients[i].sock) { //ajouter client not in game
+       if (buffer = clients[i].name) {
          strncpy(message, clients[i].name, BUF_SIZE - 1);
          break;
        }
