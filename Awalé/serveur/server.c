@@ -293,7 +293,7 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
    message[0] = '\n';
    int clients_online = 0;   
    for (i = 0; i < actual; i++) {
-       if (buffer = clients[i].name) {
+       if (strcmp(buffer, clients[i].name) == 0) {
          strncpy(message, clients[i].name, BUF_SIZE - 1);
          break;
        }

@@ -139,9 +139,12 @@ bool fin_de_jeu(Awale *jeu)
 }
 
 // Fonction principale
-int game()
+int game(char* joueur1, char* joueur2)
 {
-    Awale jeu = {.j1 = "toto", .j2 = "tutu"};
+    Awale jeu;
+    strncpy(jeu.j1, joueur1, 50);
+    strncpy(jeu.j2, joueur2, 50);
+
     initialiser_jeu(&jeu);
 
     int joueur = 0; // 0 pour le joueur 1, 1 pour le joueur 2

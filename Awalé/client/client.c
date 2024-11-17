@@ -5,6 +5,7 @@
 
 #include "client.h"
 #include "../message.h"
+#include "jeu.h"
 
 static void init(void)
 {
@@ -19,8 +20,13 @@ static void init(void)
 #endif
 }
 
-void flush_buffer(char *buffer, size_t size) {
-    memset(buffer, 0, size);
+void discard_old_messages(int sock) {
+    char temp_buffer[BUF_SIZE];
+    int flags = MSG_DONTWAIT; // Non-blocking flag
+
+    while (recv(sock, temp_buffer, BUF_SIZE - 1, flags) > 0) {
+        // Discard the message
+    }
 }
 
 static void end(void)
@@ -50,11 +56,81 @@ static void app(const char *address, const char *name)
          end_connection(sock);
          break;
       case 1:
-         
+         //choix de lancer une partie
+         int n = check_invite(sock);
+         if (n == 0)
+         {
+            send_invite(sock);
+         }
+         discard_old_messages(sock);
+         while (1){
+            FD_ZERO(&rdfs);
+
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
+
+            /* add the socket */
+            FD_SET(sock, &rdfs);
+
+            if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+            if(FD_ISSET(sock, &rdfs))
+            {
+               int n = read_server(sock, buffer);
+               /* server down */
+               if(n == 0)
+               {
+                  printf("Server disconnected !\n");
+               }
+               break;
+            }
+         }
+         if (buffer[0] == '\n') //no player
+         {
+            printf("joueur indisponible\n");
+         }
+         else
+         {
+            printf("Lancement d'une nouvelle partie\n");
+            Awale jeu;
+            strncpy(jeu.j1, name, 50);
+            strncpy(jeu.j2, buffer, 50);
+
+            initialiser_jeu(&jeu);
+
+            int joueur = 0; // 0 pour le joueur 1, 1 pour le joueur 2
+            int case_choisie;
+
+            printf("Bienvenue dans le jeu d'Awalé !\n");
+
+            while (!fin_de_jeu(&jeu))
+            {
+               afficher_plateau(&jeu);
+               printf("Joueur %d, choisissez une case (0 à 5) : ", joueur + 1);
+               scanf("%d", &case_choisie);
+
+               if (coup_valide(&jeu, joueur, case_choisie))
+               {
+                     jouer_coup(&jeu, joueur, case_choisie);
+                     joueur = 1 - joueur; // Changement de joueur
+               }
+               else
+               {
+                     printf("Coup invalide, essayez encore.\n");
+               }
+            }
+            printf("Fin du jeu !\n");
+            printf("Score final - Joueur 1: %d, Joueur 2: %d\n", jeu.score[0], jeu.score[1]);
+            game(name, buffer);
+         }
          break;
       case 2:
          //choix de communiquer
          printf("entrez 'quit' pour quitter\n");
+         discard_old_messages(sock);
          while(1)
          {
             FD_ZERO(&rdfs);
@@ -93,7 +169,7 @@ static void app(const char *address, const char *name)
                      buffer[BUF_SIZE - 1] = 0;
                   }
                }
-               if (buffer[0] == '\0') //catch empty message
+               if (buffer[0] == 0) //catch empty message
                {
                   continue;
                }
@@ -115,6 +191,7 @@ static void app(const char *address, const char *name)
 
       case 3:
             write_server(sock, PLAYERS_LIST);
+            discard_old_messages(sock);
             while (1){
                FD_ZERO(&rdfs);
 
@@ -210,6 +287,53 @@ static void write_server(SOCKET sock, const char *buffer)
    }
 }
 
+static int check_invite()
+
+static void send_invite(SOCKET sock)
+{
+   printf("entrez le nom du joueur à défier\n");
+   while(1)
+   {
+      FD_ZERO(&rdfs);
+
+      /* add STDIN_FILENO */
+      FD_SET(STDIN_FILENO, &rdfs);
+
+      /* add the socket */
+      FD_SET(sock, &rdfs);
+
+      if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+      {
+         perror("select()");
+         exit(errno);
+      }
+
+      /* something from standard input : i.e keyboard */
+      if(FD_ISSET(STDIN_FILENO, &rdfs))
+      {
+         (fgets(buffer, BUF_SIZE - 1, stdin));
+
+         char *p = NULL;
+         p = strstr(buffer, "\n");
+         if(p != NULL)
+         {
+            *p = 0;
+         }
+         else
+         {
+            /* fclean */
+            buffer[BUF_SIZE - 1] = 0;
+         }
+         if (buffer[0] == 0) //catch empty message
+         {
+            continue;
+         }
+         write_server(sock, serialize_message(NEW_GAME, buffer));
+         break;
+      }
+   }
+}
+
 int main(int argc, char **argv)
 {
    if(argc < 2)
@@ -230,11 +354,15 @@ int main(int argc, char **argv)
 int menu() {
     int choix = -1;
       printf("\n=== Menu ===\n");
-      printf("1. Option 1\n");
-      printf("2. Option 2\n");
-      printf("3. Option 3\n");
+      printf("1. Lancer une partie\n");
+      printf("2. Chat global\n");
+      printf("3. Joueurs en ligne\n");
       printf("0. Quitter\n");
       printf("Veuillez choisir une option : ");   
       scanf("%d", &choix);
+      // vérifier qu'on a bien un entier
+      if (choix < 0 || choix > 3) {
+         choix = 0;
+      }
     return choix; // Retourne le choix valide
 }
