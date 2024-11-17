@@ -60,7 +60,7 @@ static void app(const char *address, const char *name)
          int n = check_invite(sock);
          if (n == 0)
          {
-            send_invite(sock);
+            send_invite(sock, buffer, rdfs);
          }
          discard_old_messages(sock);
          while (1){
@@ -346,9 +346,9 @@ static void write_server(SOCKET sock, const char *buffer)
    }
 }
 
-static int check_invite()
+static int check_invite(SOCKET sock){return 0;}
 
-static void send_invite(SOCKET sock)
+static void send_invite(SOCKET sock, char *buffer,fd_set rdfs)
 {
    printf("entrez le nom du joueur à défier\n");
    while(1)
