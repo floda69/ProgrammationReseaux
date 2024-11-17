@@ -289,7 +289,6 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
    char message[BUF_SIZE];
    message[0] = '\n'; 
    for (i = 0; i < actual; i++) {
-       if (strcmp(buffer, clients[i].name) == 0) {
        if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0) {
          strncpy(message, clients[i].name, BUF_SIZE - 1);
          break;
