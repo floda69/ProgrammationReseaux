@@ -11,7 +11,7 @@ static void init(void)
 #ifdef WIN32
    WSADATA wsa;
    int err = WSAStartup(MAKEWORD(2, 2), &wsa);
-   if(err < 0)
+   if (err < 0)
    {
       puts("WSAStartup failed !");
       exit(EXIT_FAILURE);
@@ -19,8 +19,9 @@ static void init(void)
 #endif
 }
 
-void flush_buffer(char *buffer, size_t size) {
-    memset(buffer, 0, size);
+void flush_buffer(char *buffer, size_t size)
+{
+   memset(buffer, 0, size);
 }
 
 static void end(void)
@@ -39,23 +40,23 @@ static void app(const char *address, const char *name)
 
    /* send our name */
    write_server(sock, name);
-   int choice = -1 ;
+   int choice = -1;
    while (choice != 0)
    {
       choice = menu();
       switch (choice)
       {
       case 0:
-         //choix quitter l'application
+         // choix quitter l'application
          end_connection(sock);
          break;
       case 1:
-         
+
          break;
       case 2:
-         //choix de communiquer
+         // choix de communiquer
          printf("entrez 'quit' pour quitter\n");
-         while(1)
+         while (1)
          {
             FD_ZERO(&rdfs);
 
@@ -65,17 +66,17 @@ static void app(const char *address, const char *name)
             /* add the socket */
             FD_SET(sock, &rdfs);
 
-            if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
             {
                perror("select()");
                exit(errno);
             }
 
             /* something from standard input : i.e keyboard */
-            if(FD_ISSET(STDIN_FILENO, &rdfs))
+            if (FD_ISSET(STDIN_FILENO, &rdfs))
             {
                (fgets(buffer, BUF_SIZE - 1, stdin));
-               if(!strcmp(buffer, "quit\n"))
+               if (!strcmp(buffer, "quit\n"))
                {
                   break;
                }
@@ -83,7 +84,7 @@ static void app(const char *address, const char *name)
                {
                   char *p = NULL;
                   p = strstr(buffer, "\n");
-                  if(p != NULL)
+                  if (p != NULL)
                   {
                      *p = 0;
                   }
@@ -93,19 +94,19 @@ static void app(const char *address, const char *name)
                      buffer[BUF_SIZE - 1] = 0;
                   }
                }
-               if (buffer[0] == '\0') //catch empty message
+               if (buffer[0] == '\0') // catch empty message
                {
                   continue;
                }
                write_server(sock, serialize_message(CHAT_GENERAL, buffer));
             }
-            else if(FD_ISSET(sock, &rdfs))
+            else if (FD_ISSET(sock, &rdfs))
             {
                int n = read_server(sock, buffer);
                /* server down */
-               if(n == 0)
+               if (n == 0)
                {
-                  printf("Server disconnected !\n");
+                  printf(DISCONNECTED_SERVER);
                   break;
                }
                puts(buffer);
@@ -114,48 +115,108 @@ static void app(const char *address, const char *name)
          break;
 
       case 3:
-            write_server(sock, PLAYERS_LIST);
-            while (1){
-               FD_ZERO(&rdfs);
+         write_server(sock, PLAYERS_LIST);
+         while (1)
+         {
+            FD_ZERO(&rdfs);
 
-               /* add STDIN_FILENO */
-               FD_SET(STDIN_FILENO, &rdfs);
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
 
-               /* add the socket */
-               FD_SET(sock, &rdfs);
+            /* add the socket */
+            FD_SET(sock, &rdfs);
 
-               if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+            if (FD_ISSET(sock, &rdfs))
+            {
+               int n = read_server(sock, buffer);
+               /* server down */
+               if (n == 0)
                {
-                  perror("select()");
-                  exit(errno);
-               }
-               if(FD_ISSET(sock, &rdfs))
-               {
-                  int n = read_server(sock, buffer);
-                  /* server down */
-                  if(n == 0)
-                  {
-                     printf("Server disconnected !\n");
-                     break;
-                  }
-                  puts(buffer);
+                  printf(DISCONNECTED_SERVER);
                   break;
                }
+               puts(buffer);
+               break;
             }
+         }
+         break;
+      case 4:
+         while (1)
+         {
+            FD_ZERO(&rdfs);
+
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
+
+            /* add the socket */
+            FD_SET(sock, &rdfs);
+
+            if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+
+            /* something from standard input : i.e keyboard */
+            if (FD_ISSET(STDIN_FILENO, &rdfs))
+            {
+               (fgets(buffer, BUF_SIZE - 1, stdin));
+               if (!strcmp(buffer, "quit\n"))
+               {
+                  break;
+               }
+               else
+               {
+                  char *p = NULL;
+                  p = strstr(buffer, "\n");
+                  if (p != NULL)
+                  {
+                     *p = 0;
+                  }
+                  else
+                  {
+                     /* fclean */
+                     buffer[BUF_SIZE - 1] = 0;
+                  }
+               }
+               if (buffer[0] == '\0') // catch empty message
+               {
+                  continue;
+               }
+               write_server(sock, serialize_message(NEW_GAME, buffer));
+            }
+            else if (FD_ISSET(sock, &rdfs))
+            {
+               int n = read_server(sock, buffer);
+               /* server down */
+               if (n == 0)
+               {
+                  printf(DISCONNECTED_SERVER);
+                  break;
+               }
+               puts(buffer);
+            }
+         }
          break;
       default:
+         printf("Saisie non valide !\n");
          break;
       }
-   }   
+   }
 }
 
 static int init_connection(const char *address)
 {
    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-   SOCKADDR_IN sin = { 0 };
+   SOCKADDR_IN sin = {0};
    struct hostent *hostinfo;
 
-   if(sock == INVALID_SOCKET)
+   if (sock == INVALID_SOCKET)
    {
       perror("socket()");
       exit(errno);
@@ -164,15 +225,15 @@ static int init_connection(const char *address)
    hostinfo = gethostbyname(address);
    if (hostinfo == NULL)
    {
-      fprintf (stderr, "Unknown host %s.\n", address);
+      fprintf(stderr, "Unknown host %s.\n", address);
       exit(EXIT_FAILURE);
    }
 
-   sin.sin_addr = *(IN_ADDR *) hostinfo->h_addr;
+   sin.sin_addr = *(IN_ADDR *)hostinfo->h_addr;
    sin.sin_port = htons(PORT);
    sin.sin_family = AF_INET;
 
-   if(connect(sock,(SOCKADDR *) &sin, sizeof(SOCKADDR)) == SOCKET_ERROR)
+   if (connect(sock, (SOCKADDR *)&sin, sizeof(SOCKADDR)) == SOCKET_ERROR)
    {
       perror("connect()");
       exit(errno);
@@ -190,7 +251,7 @@ static int read_server(SOCKET sock, char *buffer)
 {
    int n = 0;
 
-   if((n = recv(sock, buffer, BUF_SIZE - 1, 0)) < 0)
+   if ((n = recv(sock, buffer, BUF_SIZE - 1, 0)) < 0)
    {
       perror("recv()");
       exit(errno);
@@ -203,7 +264,7 @@ static int read_server(SOCKET sock, char *buffer)
 
 static void write_server(SOCKET sock, const char *buffer)
 {
-   if(send(sock, buffer, strlen(buffer), 0) < 0)
+   if (send(sock, buffer, strlen(buffer), 0) < 0)
    {
       perror("send()");
       exit(errno);
@@ -212,7 +273,7 @@ static void write_server(SOCKET sock, const char *buffer)
 
 int main(int argc, char **argv)
 {
-   if(argc < 2)
+   if (argc < 2)
    {
       printf("Usage : %s [address] [pseudo]\n", argv[0]);
       return EXIT_FAILURE;
@@ -227,14 +288,15 @@ int main(int argc, char **argv)
    return EXIT_SUCCESS;
 }
 
-int menu() {
-    int choix = -1;
-      printf("\n=== Menu ===\n");
-      printf("1. Option 1\n");
-      printf("2. Option 2\n");
-      printf("3. Option 3\n");
-      printf("0. Quitter\n");
-      printf("Veuillez choisir une option : ");   
-      scanf("%d", &choix);
-    return choix; // Retourne le choix valide
+int menu()
+{
+   int choix = -1;
+   printf("\n=== Menu ===\n");
+   printf("1. Option 1\n");
+   printf("2. Option 2\n");
+   printf("3. Option 3\n");
+   printf("0. Quitter\n");
+   printf("Veuillez choisir une option : ");
+   scanf("%d", &choix);
+   return choix; // Retourne le choix valide
 }

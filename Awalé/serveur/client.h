@@ -8,6 +8,7 @@ typedef struct
 {
    SOCKET sock;
    char name[BUF_SIZE];
+   int isInGame;
    char bio[200];
 }Client;
 
