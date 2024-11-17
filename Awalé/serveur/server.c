@@ -90,7 +90,7 @@ static void app(void)
 
          FD_SET(csock, &rdfs);
 
-         Client c = {sock : csock, isInGame : 0};
+         Client c = {sock : csock, isInGame : 0, invite : 0};
          strncpy(c.name, buffer, BUF_SIZE - 1);
          send_new_connection_message_to_all_clients(clients, c, actual);
          clients[actual] = c;
@@ -132,6 +132,10 @@ static void app(void)
                   else if (strncmp(buffer, NEW_GAME, 2) == 0)
                   {
                      search_opponent(clients, client, actual, buffer+2);
+                  }
+                  else if (strncmp(buffer, ASK_INVITE, 2) == 0)
+                  {
+                     check_invite(client);
                   }
                }
                break;
@@ -291,8 +295,22 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
    for (i = 0; i < actual; i++) {
        if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0) {
          strncpy(message, clients[i].name, BUF_SIZE - 1);
+         strncpy(clients[i].invite, client.name, 50);
+         clients[i].isInGame = 1;
+         client.isInGame = 1;
          break;
        }
+   }
+   write_client(client.sock, message);
+}
+
+static void check_invite(Client client)
+{
+   char message[BUF_SIZE];
+   message[0] = '\n';
+   if (client.invite[0] != '\0') {
+      strncpy(message, client.invite, BUF_SIZE - 1);
+      client.invite[0] = '\0';
    }
    write_client(client.sock, message);
 }

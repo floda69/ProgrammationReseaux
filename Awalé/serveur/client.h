@@ -9,6 +9,7 @@ typedef struct
    SOCKET sock;
    char name[BUF_SIZE];
    int isInGame;
+   char invite[50];
    char bio[200];
 }Client;
 

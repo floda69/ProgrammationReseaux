@@ -41,7 +41,7 @@ static void end_connection(int sock);
 static int read_server(SOCKET sock, char *buffer);
 static void write_server(SOCKET sock, const char *buffer);
 static int menu();
-static int check_invite(SOCKET sock);
+static char* check_invite(SOCKET sock, char *buffer,fd_set rdfs);
 static void send_invite(SOCKET sock, char *buffer,fd_set rdfs);
 
 #endif /* guard */
