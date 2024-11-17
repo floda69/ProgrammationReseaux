@@ -83,7 +83,7 @@ static void app(const char *address, const char *name)
                /* server down */
                if(n == 0)
                {
-                  printf("Server disconnected !\n");
+                  printf(DISCONNECTED_SERVER);
                }
                break;
             }
@@ -181,7 +181,7 @@ static void app(const char *address, const char *name)
                /* server down */
                if(n == 0)
                {
-                  printf("Server disconnected !\n");
+                  printf(DISCONNECTED_SERVER);
                   break;
                }
                puts(buffer);
@@ -195,44 +195,103 @@ static void app(const char *address, const char *name)
             while (1){
                FD_ZERO(&rdfs);
 
-               /* add STDIN_FILENO */
-               FD_SET(STDIN_FILENO, &rdfs);
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
 
-               /* add the socket */
-               FD_SET(sock, &rdfs);
+            /* add the socket */
+            FD_SET(sock, &rdfs);
 
-               if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+            if(FD_ISSET(sock, &rdfs))
+            {
+               int n = read_server(sock, buffer);
+               /* server down */
+               if(n == 0)
                {
-                  perror("select()");
-                  exit(errno);
-               }
-               if(FD_ISSET(sock, &rdfs))
-               {
-                  int n = read_server(sock, buffer);
-                  /* server down */
-                  if(n == 0)
-                  {
-                     printf("Server disconnected !\n");
-                     break;
-                  }
-                  puts(buffer);
+                  printf(DISCONNECTED_SERVER);
                   break;
                }
+               puts(buffer);
+               break;
             }
+         }
+         break;
+      case 4:
+         while (1)
+         {
+            FD_ZERO(&rdfs);
+
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
+
+            /* add the socket */
+            FD_SET(sock, &rdfs);
+
+            if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+
+            /* something from standard input : i.e keyboard */
+            if (FD_ISSET(STDIN_FILENO, &rdfs))
+            {
+               (fgets(buffer, BUF_SIZE - 1, stdin));
+               if (!strcmp(buffer, "quit\n"))
+               {
+                  break;
+               }
+               else
+               {
+                  char *p = NULL;
+                  p = strstr(buffer, "\n");
+                  if (p != NULL)
+                  {
+                     *p = 0;
+                  }
+                  else
+                  {
+                     /* fclean */
+                     buffer[BUF_SIZE - 1] = 0;
+                  }
+               }
+               if (buffer[0] == '\0') // catch empty message
+               {
+                  continue;
+               }
+               write_server(sock, serialize_message(NEW_GAME, buffer));
+            }
+            else if (FD_ISSET(sock, &rdfs))
+            {
+               int n = read_server(sock, buffer);
+               /* server down */
+               if (n == 0)
+               {
+                  printf(DISCONNECTED_SERVER);
+                  break;
+               }
+               puts(buffer);
+            }
+         }
          break;
       default:
+         printf("Saisie non valide !\n");
          break;
       }
-   }   
+   }
 }
 
 static int init_connection(const char *address)
 {
    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-   SOCKADDR_IN sin = { 0 };
+   SOCKADDR_IN sin = {0};
    struct hostent *hostinfo;
 
-   if(sock == INVALID_SOCKET)
+   if (sock == INVALID_SOCKET)
    {
       perror("socket()");
       exit(errno);

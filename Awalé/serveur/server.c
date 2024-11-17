@@ -90,7 +90,7 @@ static void app(void)
 
          FD_SET(csock, &rdfs);
 
-         Client c = {csock};
+         Client c = {sock : csock, isInGame : 0};
          strncpy(c.name, buffer, BUF_SIZE - 1);
          send_new_connection_message_to_all_clients(clients, c, actual);
          clients[actual] = c;
@@ -132,9 +132,6 @@ static void app(void)
                   else if (strncmp(buffer, NEW_GAME, 2) == 0)
                   {
                      search_opponent(clients, client, actual, buffer+2);
-                  }
-                  else
-                  {
                   }
                }
                break;
@@ -290,14 +287,19 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
 {
    int i = 0;
    char message[BUF_SIZE];
-   message[0] = '\n';
-   int clients_online = 0;   
+   message[0] = '\n'; 
    for (i = 0; i < actual; i++) {
+<<<<<<< HEAD
        if (strcmp(buffer, clients[i].name) == 0) {
+=======
+       if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0) {
+>>>>>>> d2df1bbbac4f8bc166360e71e68a8930484aad6b
          strncpy(message, clients[i].name, BUF_SIZE - 1);
          break;
        }
    }
+   if (message[0] == '\n')
+      strncpy(message, "Joueur demandé indisponnible", BUF_SIZE - 1);
    write_client(client.sock, message);
 }
 
