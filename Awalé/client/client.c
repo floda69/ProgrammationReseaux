@@ -57,7 +57,8 @@ static void app(const char *address, const char *name)
          break;
       case 1:
          //choix de lancer une partie
-         char* opponent = check_invite(sock, buffer, rdfs);
+         char* opponent;
+         strcpy(opponent,check_invite(sock, buffer, rdfs));
          int joueur = 0; // 0 pour le joueur 1, 1 pour le joueur 2
          if(opponent == 0)
          {
@@ -102,7 +103,61 @@ static void app(const char *address, const char *name)
             else opponent = buffer;
          }
 
+         while(1){
+            FD_ZERO(&rdfs);
 
+            /* add STDIN_FILENO */
+            FD_SET(STDIN_FILENO, &rdfs);
+
+            /* add the socket */
+            FD_SET(sock, &rdfs);
+            if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+            {
+               perror("select()");
+               exit(errno);
+            }
+            // TODO réception serveur
+            if(FD_ISSET(sock, &rdfs)){
+               int n = read_server(sock, buffer);
+               /* server down */
+               if(n == 0)
+               {
+                  printf(DISCONNECTED_SERVER);
+                  break;
+               }
+               puts(buffer);
+               break;
+            }
+            // TODO réception keyboard
+            if (FD_ISSET(STDIN_FILENO, &rdfs))
+            {
+               (fgets(buffer, BUF_SIZE - 1, stdin));
+               if (!strcmp(buffer, "quit\n"))
+               {
+                  break;
+               }
+               else
+               {
+                  char *p = NULL;
+                  p = strstr(buffer, "\n");
+                  if (p != NULL)
+                  {
+                     *p = 0;
+                  }
+                  else
+                  {
+                     /* fclean */
+                     buffer[BUF_SIZE - 1] = 0;
+                  }
+               }
+               if (buffer[0] == '\0') // catch empty message
+               {
+                  continue;
+               }
+               write_server(sock, serialize_message(NEW_GAME, buffer));
+            }
+
+         }
          ////faire gestion du tour par tour
          
          printf("Lancement d'une nouvelle partie\n");
@@ -226,64 +281,6 @@ static void app(const char *address, const char *name)
                }
                puts(buffer);
                break;
-            }
-         }
-         break;
-      case 4:
-         while (1)
-         {
-            FD_ZERO(&rdfs);
-
-            /* add STDIN_FILENO */
-            FD_SET(STDIN_FILENO, &rdfs);
-
-            /* add the socket */
-            FD_SET(sock, &rdfs);
-
-            if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-            {
-               perror("select()");
-               exit(errno);
-            }
-
-            /* something from standard input : i.e keyboard */
-            if (FD_ISSET(STDIN_FILENO, &rdfs))
-            {
-               (fgets(buffer, BUF_SIZE - 1, stdin));
-               if (!strcmp(buffer, "quit\n"))
-               {
-                  break;
-               }
-               else
-               {
-                  char *p = NULL;
-                  p = strstr(buffer, "\n");
-                  if (p != NULL)
-                  {
-                     *p = 0;
-                  }
-                  else
-                  {
-                     /* fclean */
-                     buffer[BUF_SIZE - 1] = 0;
-                  }
-               }
-               if (buffer[0] == '\0') // catch empty message
-               {
-                  continue;
-               }
-               write_server(sock, serialize_message(NEW_GAME, buffer));
-            }
-            else if (FD_ISSET(sock, &rdfs))
-            {
-               int n = read_server(sock, buffer);
-               /* server down */
-               if (n == 0)
-               {
-                  printf(DISCONNECTED_SERVER);
-                  break;
-               }
-               puts(buffer);
             }
          }
          break;
