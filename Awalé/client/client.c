@@ -101,14 +101,11 @@ static void app(const char *address, const char *name)
             }
             else opponent = buffer;
          }
-
-
-         ////faire gestion du tour par tour
          
          printf("Lancement d'une nouvelle partie\n");
          Awale jeu;
          strncpy(jeu.j1, name, 50);
-         strncpy(jeu.j2, buffer, 50);
+         strncpy(jeu.j2, opponent, 50);
 
          initialiser_jeu(&jeu);
          int case_choisie;
@@ -118,23 +115,104 @@ static void app(const char *address, const char *name)
          while (!fin_de_jeu(&jeu))
          {
             afficher_plateau(&jeu);
-            printf("Joueur %d, choisissez une case (0 à 5) : ", joueur + 1);
-            scanf("%d", &case_choisie);
+            if (joueur == 0){
 
-            if (coup_valide(&jeu, joueur, case_choisie))
-            {
-                  jouer_coup(&jeu, joueur, case_choisie);
-                  joueur = 1 - joueur; // Changement de joueur
-            }
-            else
-            {
-                  printf("Coup invalide, essayez encore.\n");
+               printf("%s, choisissez une case (0 à 5) : ", jeu.j1);
+
+
+
+               while(1)
+               {
+                  FD_ZERO(&rdfs);
+
+                  /* add STDIN_FILENO */
+                  FD_SET(STDIN_FILENO, &rdfs);
+
+                  /* add the socket */
+                  FD_SET(sock, &rdfs);
+
+                  if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+                  {
+                     perror("select()");
+                     exit(errno);
+                  }
+
+                  /* something from standard input : i.e keyboard */
+                  if(FD_ISSET(STDIN_FILENO, &rdfs))
+                  {
+                     (fgets(buffer, BUF_SIZE - 1, stdin));
+
+                     char *p = NULL;
+                     p = strstr(buffer, "\n");
+                     if(p != NULL)
+                     {
+                        *p = 0;
+                     }
+                     else
+                     {
+                        /* fclean */
+                        buffer[BUF_SIZE - 1] = 0;
+                     }
+                     
+                     if (buffer[0] == 0) //catch empty message
+                     {
+                        continue;
+                     }
+                     if (coup_valide(&jeu, joueur, case_choisie))
+                     {
+                        jouer_coup(&jeu, joueur, case_choisie);
+                        joueur = 1 - joueur; // Changement de joueur
+                        write_server(sock, serialize_message(strcat(strcat(INGAME, jeu.j2), "\n"), &case_choisie));
+                        break;
+                     }
+                     else
+                     {
+                        printf("%s, choisissez une case (0 à 5) : ", jeu.j1);
+                     }
+                  }
+
+               
+               }
+            } else {
+               printf("En attente de %s\n", jeu.j2);
+               while (1){
+                  FD_ZERO(&rdfs);
+
+                  /* add STDIN_FILENO */
+                  FD_SET(STDIN_FILENO, &rdfs);
+
+                  /* add the socket */
+                  FD_SET(sock, &rdfs);
+
+                  if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+                  {
+                     perror("select()");
+                     exit(errno);
+                  }
+                  if(FD_ISSET(sock, &rdfs))
+                  {
+                     int n = read_server(sock, buffer);
+                     /* server down */
+                     if(n == 0)
+                     {
+                        printf(DISCONNECTED_SERVER);
+                        break;
+                     }
+                     char* coup = buffer+1;
+                     if (coup_valide(&jeu, joueur, atoi(coup)))
+                     {
+                        jouer_coup(&jeu, joueur, atoi(coup));
+                        joueur = 1 - joueur;
+                        break;
+                     }
+                  }
+               }
             }
          }
+
          printf("Fin du jeu !\n");
-         printf("Score final - Joueur 1: %d, Joueur 2: %d\n", jeu.score[0], jeu.score[1]);
-         game(name, buffer);
-      
+         //write_server(sock, serialize_message(END_GAME, "Fin du jeu !"));
+         printf("Score final - Joueur 1: %d, Joueur 2: %d\n", jeu.score[0], jeu.score[1]);      
          break;
       case 2:
          //choix de communiquer
@@ -204,88 +282,30 @@ static void app(const char *address, const char *name)
             while (1){
                FD_ZERO(&rdfs);
 
-            /* add STDIN_FILENO */
-            FD_SET(STDIN_FILENO, &rdfs);
+               /* add STDIN_FILENO */
+               FD_SET(STDIN_FILENO, &rdfs);
 
-            /* add the socket */
-            FD_SET(sock, &rdfs);
+               /* add the socket */
+               FD_SET(sock, &rdfs);
 
-            if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-            {
-               perror("select()");
-               exit(errno);
-            }
-            if(FD_ISSET(sock, &rdfs))
-            {
-               int n = read_server(sock, buffer);
-               /* server down */
-               if(n == 0)
+               if(select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
                {
-                  printf(DISCONNECTED_SERVER);
-                  break;
+                  perror("select()");
+                  exit(errno);
                }
-               puts(buffer);
-               break;
-            }
-         }
-         break;
-      case 4:
-         while (1)
-         {
-            FD_ZERO(&rdfs);
-
-            /* add STDIN_FILENO */
-            FD_SET(STDIN_FILENO, &rdfs);
-
-            /* add the socket */
-            FD_SET(sock, &rdfs);
-
-            if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-            {
-               perror("select()");
-               exit(errno);
-            }
-
-            /* something from standard input : i.e keyboard */
-            if (FD_ISSET(STDIN_FILENO, &rdfs))
-            {
-               (fgets(buffer, BUF_SIZE - 1, stdin));
-               if (!strcmp(buffer, "quit\n"))
+               if(FD_ISSET(sock, &rdfs))
                {
-                  break;
-               }
-               else
-               {
-                  char *p = NULL;
-                  p = strstr(buffer, "\n");
-                  if (p != NULL)
+                  int n = read_server(sock, buffer);
+                  /* server down */
+                  if(n == 0)
                   {
-                     *p = 0;
+                     printf(DISCONNECTED_SERVER);
+                     break;
                   }
-                  else
-                  {
-                     /* fclean */
-                     buffer[BUF_SIZE - 1] = 0;
-                  }
-               }
-               if (buffer[0] == '\0') // catch empty message
-               {
-                  continue;
-               }
-               write_server(sock, serialize_message(NEW_GAME, buffer));
-            }
-            else if (FD_ISSET(sock, &rdfs))
-            {
-               int n = read_server(sock, buffer);
-               /* server down */
-               if (n == 0)
-               {
-                  printf(DISCONNECTED_SERVER);
+                  puts(buffer);
                   break;
                }
-               puts(buffer);
             }
-         }
          break;
       default:
          printf("Saisie non valide !\n");

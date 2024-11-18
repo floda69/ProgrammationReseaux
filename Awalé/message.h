@@ -11,6 +11,8 @@
 #define PLAYERS_LIST "03"
 #define NEW_GAME "04"
 #define ASK_INVITE "05"
+#define INGAME "05"
+
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

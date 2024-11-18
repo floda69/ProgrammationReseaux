@@ -137,6 +137,10 @@ static void app(void)
                   {
                      check_invite(client);
                   }
+                  else if (strncmp(buffer, INGAME, 2) == 0)
+                  {
+                     ingame_message(clients, client, actual, buffer+2);
+                  }
                }
                break;
             }
@@ -313,6 +317,29 @@ static void check_invite(Client client)
       client.invite[0] = '\0';
    }
    write_client(client.sock, message);
+}
+
+static SOCKET get_sock_by_name(Client *clients, int actual, const char *name)
+{
+   int i = 0;
+   for (i = 0; i < actual; i++) {
+       if (!strcmp(name, clients[i].name)) {
+           return clients[i].sock;
+       }
+   }
+}
+
+static void ingame_message(Client *clients, Client client, int actual, const char *buffer)
+{
+   char message[BUF_SIZE];
+   message[0] = '0';
+   char player[50];
+   const char *p = strchr(buffer, '\n');
+   size_t length = p - buffer;
+   strncpy(player, buffer, length);
+   buffer+=length;
+   strncat(message, buffer, sizeof message - strlen(message) - 1);
+   write_client(get_sock_by_name(clients, actual, player), message);
 }
 
 int main(int argc, char **argv)
