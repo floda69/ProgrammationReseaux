@@ -49,7 +49,7 @@ static void send_new_connection_message_to_all_clients(Client *clients, Client n
 static void send_clients_list_on_demand(Client *clients, Client client, int actual);
 static void remove_client(Client *clients, int to_remove, int *actual);
 static void clear_clients(Client *clients, int actual);
-static void search_opponent(Client *clients, Client client, int actual, const char *buffer);
+static char* search_opponent(Client *clients, Client client, int actual, const char *buffer);
 static void check_invite(Client client);
 
 #endif /* guard */

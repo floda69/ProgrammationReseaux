@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include "jeu.h"
 
 #include "server.h"
 
@@ -34,6 +35,8 @@ static void app(void)
    int max = sock;
    /* an array for all clients */
    Client clients[MAX_CLIENTS];
+   Awale games[MAX_CLIENTS];
+   int nb_games = 0;
 
    fd_set rdfs;
 
@@ -131,11 +134,23 @@ static void app(void)
                   }
                   else if (strncmp(buffer, NEW_GAME, 2) == 0)
                   {
-                     search_opponent(clients, client, actual, buffer+2);
+                     if (search_opponent(clients, client, actual, buffer+2)!="\n")
+                     {
+                        Awale game;
+                        initialiser_jeu(&game);
+                        games[nb_games] = game;
+                        strcpy(game.j1,client.name);
+                        strcpy(game.j2,buffer);
+                        ++nb_games;
+                     }
                   }
                   else if (strncmp(buffer, ASK_INVITE, 2) == 0)
                   {
                      check_invite(client);
+                  }
+                  else if (strncmp(buffer, PLAY, 2) == 0)
+                  {
+                     //jouer le coup et envoyer le game sérialisé
                   }
                }
                break;
@@ -287,7 +302,7 @@ static void write_client(SOCKET sock, const char *buffer)
    }
 }
 
-static void search_opponent(Client *clients, Client client, int actual, const char *buffer)
+static char* search_opponent(Client *clients, Client client, int actual, const char *buffer)
 {
    int i = 0;
    char message[BUF_SIZE];
@@ -302,6 +317,7 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
        }
    }
    write_client(client.sock, message);
+   return message;
 }
 
 static void check_invite(Client client)

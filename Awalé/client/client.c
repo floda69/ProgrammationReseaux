@@ -102,7 +102,7 @@ static void app(const char *address, const char *name)
             }
             else opponent = buffer;
          }
-
+         Awale jeu;
          while(1){
             FD_ZERO(&rdfs);
 
@@ -125,7 +125,8 @@ static void app(const char *address, const char *name)
                   printf(DISCONNECTED_SERVER);
                   break;
                }
-               puts(buffer);
+               deserialize_awale(buffer, &jeu);
+               afficher_plateau(&jeu);
                break;
             }
             // TODO réception keyboard
@@ -155,6 +156,7 @@ static void app(const char *address, const char *name)
                   continue;
                }
                write_server(sock, serialize_message(NEW_GAME, buffer));
+               afficher_plateau(&jeu);
             }
 
          }
