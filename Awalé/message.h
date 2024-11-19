@@ -6,11 +6,16 @@
 #include "string.h"
 #include <stdlib.h>
 
-#define NAME "01"
-#define CHAT_GENERAL "02"
+#define GLOBAL_MSG "01"
+#define SWITCH_CHAT "02"
 #define PLAYERS_LIST "03"
 #define NEW_GAME "04"
 #define ASK_INVITE "05"
+
+#define CMD_DISCONNECT "/disconnect"
+#define CMD_PLAYER_LIST "/players"
+#define CMD_SWITCH_CHAT_MODE "/switch chat mode"
+#define CMD_GLOBAL "/global"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

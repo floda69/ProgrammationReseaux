@@ -90,11 +90,13 @@ static void app(void)
 
          FD_SET(csock, &rdfs);
 
-         Client c = {sock : csock, isInGame : 0, invite : 0};
+         Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0};
          strncpy(c.name, buffer, BUF_SIZE - 1);
-         send_new_connection_message_to_all_clients(clients, c, actual);
          clients[actual] = c;
          actual++;
+         
+         strncat(buffer, " just connected !\n", BUF_SIZE - strlen(buffer) - 1);
+         send_message_to_all_clients(clients, c, actual, buffer, 1);
       }
       else
       {
@@ -117,21 +119,22 @@ static void app(void)
                }
                else
                {
-                  //décode message
-                  if (strncmp(buffer, NAME, 2) == 0)
-                  {
-                  }
-                  else if (strncmp(buffer, PLAYERS_LIST, 2) == 0)
+                  // décode message
+                  if (strncmp(buffer, PLAYERS_LIST, 2) == 0)
                   {
                      send_clients_list_on_demand(clients, client, actual);
                   }
-                  else if (strncmp(buffer, CHAT_GENERAL, 2) == 0)
+                  else if (strncmp(buffer, SWITCH_CHAT, 2) == 0)
                   {
-                     send_message_to_all_clients(clients, client, actual, buffer+2, 0);
+                     switch_client_chat_mode(&(clients[i]));
+                  }
+                  else if (strncmp(buffer, GLOBAL_MSG, 2) == 0)
+                  {
+                     send_message_to_all_clients(clients, client, actual, buffer + 3, 0);
                   }
                   else if (strncmp(buffer, NEW_GAME, 2) == 0)
                   {
-                     search_opponent(clients, client, actual, buffer+2);
+                     search_opponent(clients, client, actual, buffer + 2);
                   }
                   else if (strncmp(buffer, ASK_INVITE, 2) == 0)
                   {
@@ -173,11 +176,12 @@ static void send_message_to_all_clients(Client *clients, Client sender, int actu
    for (i = 0; i < actual; i++)
    {
       /* we don't send message to the sender */
-      if (sender.sock != clients[i].sock)
+      if ((sender.sock != clients[i].sock) && (clients[i].isInGlobalChatMode == 1))
       {
-         if (from_server == 0)
+         strncpy(message, GLOBAL_MSG, BUF_SIZE - 1);
+         if (!from_server)
          {
-            strncpy(message, sender.name, BUF_SIZE - 1);
+            strncat(message, sender.name, sizeof message - strlen(message) - 1);
             strncat(message, " : ", sizeof message - strlen(message) - 1);
          }
          strncat(message, buffer, sizeof message - strlen(message) - 1);
@@ -196,7 +200,8 @@ static void send_new_connection_message_to_all_clients(Client *clients, Client n
       /* we don't send message to the sender */
       if (newClient.sock != clients[i].sock)
       {
-         strncpy(message, "Nouvelle connection de : ", BUF_SIZE - 1);
+         strncpy(message, GLOBAL_MSG, BUF_SIZE - 1);
+         strncat(message, "Nouvelle connection de : ", sizeof message - strlen(message) - 1);
          strncat(message, newClient.name, sizeof message - strlen(message) - 1);
          write_client(clients[i].sock, message);
       }
@@ -209,22 +214,36 @@ static void send_clients_list_on_demand(Client *clients, Client client, int actu
    char message[BUF_SIZE];
    message[0] = 0;
    int clients_online = 0;
-   
-   strncpy(message, "Liste des joueurs: \n", BUF_SIZE - 1);
-   
-   for (i = 0; i < actual; i++) {
-       if (client.sock != clients[i].sock) {
-           strncat(message, clients[i].name, sizeof message - strlen(message) - 1);
-           strncat(message, "\n", sizeof message - strlen(message) - 1);
-           clients_online++;
-       }
+
+   strncpy(message, PLAYERS_LIST, BUF_SIZE - 1);
+   strncat(message, "Liste des joueurs: \n", sizeof message - strlen(message) - 1);
+
+   for (i = 0; i < actual; i++)
+   {
+      if (client.sock != clients[i].sock)
+      {
+         strncat(message, clients[i].name, sizeof message - strlen(message) - 1);
+         strncat(message, "\n", sizeof message - strlen(message) - 1);
+         clients_online++;
+      }
    }
-   
-   if (clients_online == 0) {
-       strncpy(message, "Aucun autre joueur en ligne.\n", sizeof message - strlen(message) - 1);
+
+   if (clients_online == 0)
+   {
+      strncpy(message, "Aucun autre joueur en ligne.\n", sizeof message - strlen(message) - 1);
    }
-   
+
    write_client(client.sock, message);
+}
+
+static void switch_client_chat_mode(Client *client)
+{
+
+   // puts(client->name);
+   printf("%s passe du mode chat global %d", client->name, client->isInGlobalChatMode);
+   int tempSwitch = client->isInGlobalChatMode;
+   client->isInGlobalChatMode = (tempSwitch == 0) ? 1 : 0;
+   printf(" à %d\n", client->isInGlobalChatMode);
 }
 
 static int init_connection(void)
@@ -291,15 +310,17 @@ static void search_opponent(Client *clients, Client client, int actual, const ch
 {
    int i = 0;
    char message[BUF_SIZE];
-   message[0] = '\n'; 
-   for (i = 0; i < actual; i++) {
-       if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0) {
+   message[0] = '\n';
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0)
+      {
          strncpy(message, clients[i].name, BUF_SIZE - 1);
          strncpy(clients[i].invite, client.name, 50);
          clients[i].isInGame = 1;
          client.isInGame = 1;
          break;
-       }
+      }
    }
    write_client(client.sock, message);
 }
@@ -308,7 +329,8 @@ static void check_invite(Client client)
 {
    char message[BUF_SIZE];
    message[0] = '\n';
-   if (client.invite[0] != '\0') {
+   if (client.invite[0] != '\0')
+   {
       strncpy(message, client.invite, BUF_SIZE - 1);
       client.invite[0] = '\0';
    }
