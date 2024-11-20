@@ -166,25 +166,28 @@ static void remove_client(Client *clients, int to_remove, int *actual)
 
 static void send_message_to_all_clients(Client *clients, Client sender, int actual, const char *buffer, char from_server)
 {
-   int i = 0;
-   char message[BUF_SIZE];
-   message[0] = 0;
-   for (i = 0; i < actual; i++)
+   /* we don't send message if not in global chat mode*/
+   if (sender.isInGlobalChatMode)
    {
-      /* we don't send message to the sender */
-      if ((sender.sock != clients[i].sock) && (clients[i].isInGlobalChatMode == 1))
+      int i = 0;
+      char message[BUF_SIZE];
+      message[0] = 0;
+      for (i = 0; i < actual; i++)
       {
-         strncpy(message, GLOBAL_MSG, BUF_SIZE - 1);
-         strncat(message, GREEN, sizeof message - strlen(message) - 1);
-         if (!from_server)
+         if ((sender.sock != clients[i].sock) && (clients[i].isInGlobalChatMode == 1))
          {
-            strncat(message, YELLOW, sizeof message - strlen(message) - 1);
-            strncat(message, sender.name, sizeof message - strlen(message) - 1);
-            strncat(message, " : ", sizeof message - strlen(message) - 1);
+            strncpy(message, GLOBAL_MSG, BUF_SIZE - 1);
+            strncat(message, GREEN, sizeof message - strlen(message) - 1);
+            if (!from_server)
+            {
+               strncat(message, YELLOW, sizeof message - strlen(message) - 1);
+               strncat(message, sender.name, sizeof message - strlen(message) - 1);
+               strncat(message, " : ", sizeof message - strlen(message) - 1);
+            }
+            strncat(message, buffer, sizeof message - strlen(message) - 1);
+            strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
+            write_client(clients[i].sock, message);
          }
-         strncat(message, buffer, sizeof message - strlen(message) - 1);
-         strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
-         write_client(clients[i].sock, message);
       }
    }
 }

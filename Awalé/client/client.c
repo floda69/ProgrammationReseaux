@@ -92,18 +92,20 @@ static void app(const char *address, const char *name)
          else if (!strcmp(buffer, CMD_SWITCH_CHAT_MODE))
             write_server(sock, SWITCH_CHAT);
          // envoyer message global
-         else if (!strncmp(buffer, CMD_GLOBAL, strlen(CMD_GLOBAL))) {
+         else if (!strncmp(buffer, CMD_GLOBAL, strlen(CMD_GLOBAL)))
+         {
             memmove(buffer, buffer + strlen(CMD_GLOBAL), strlen(buffer) - strlen(CMD_GLOBAL) + 1);
             write_server(sock, serialize_message(GLOBAL_MSG, buffer));
          }
          // défier un joueur
-         else if (!strncmp(buffer, CMD_DEFY_PLAYER, strlen(CMD_DEFY_PLAYER))) {
+         else if (!strncmp(buffer, CMD_DEFY_PLAYER, strlen(CMD_DEFY_PLAYER)))
+         {
             memmove(buffer, buffer + strlen(CMD_DEFY_PLAYER), strlen(buffer) - strlen(CMD_DEFY_PLAYER) + 1);
             write_server(sock, serialize_message(DEFY, buffer));
          }
 
          else
-            puts("Commande non reconnue.\n");
+            printf("%sCommande non reconnue.%s\n", RED, COLOR_RESET);
       }
       else if (FD_ISSET(sock, &rdfs))
       {
@@ -116,15 +118,15 @@ static void app(const char *address, const char *name)
          }
          else if (!strncmp(buffer, PLAYERS_LIST, 2))
          {
-            puts(buffer+2);
+            puts(buffer + 2);
          }
          else if (!strncmp(buffer, GLOBAL_MSG, 2))
          {
-            puts(buffer+2);
+            puts(buffer + 2);
          }
          else if (!strncmp(buffer, SERVER_MSG, 2))
          {
-            puts(buffer+2);
+            puts(buffer + 2);
          }
       }
    }
