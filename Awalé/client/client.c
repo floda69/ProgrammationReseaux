@@ -5,7 +5,7 @@
 
 #include "client.h"
 #include "../message.h"
-#include "jeu.h"
+#include "../jeu.h"
 
 static void init(void)
 {
