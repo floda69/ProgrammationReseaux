@@ -121,6 +121,7 @@ void jouer_coup(Awale *jeu, int joueur, int case_choisie)
             case_actuelle--;
         }
         jeu->score[joueur] += capture;
+        jeu->joueur = 1- joueur;
     }
 }
 

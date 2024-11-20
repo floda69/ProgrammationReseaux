@@ -1,7 +1,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "client/jeu.h"
+#include "jeu.h"
 #include "stdio.h"
 #include "string.h"
 #include <stdlib.h>

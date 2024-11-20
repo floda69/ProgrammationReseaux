@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include "jeu.h"
 
 #include "server.h"
+#include "../jeu.h"
 
 static void init(void)
 {
@@ -150,7 +150,14 @@ static void app(void)
                   }
                   else if (strncmp(buffer, PLAY, 2) == 0)
                   {
-                     //jouer le coup et envoyer le game sérialisé
+                     Awale *game = get_game_from_player(games, client.name, nb_games);
+                     jouer_coup(game, game->joueur, atoi(buffer[3]));
+                     SOCKET sockj1 = get_sock_from_name(clients, game->j1, actual);
+                     serialize_awale(game, buffer, BUF_SIZE);
+                     write_client(sockj1, buffer);
+                     SOCKET sockj2 = get_sock_from_name(clients, game->j2, actual);
+                     serialize_awale(game, buffer, BUF_SIZE);
+                     write_client(sockj2, buffer);
                   }
                }
                break;
@@ -329,6 +336,30 @@ static void check_invite(Client client)
       client.invite[0] = '\0';
    }
    write_client(client.sock, message);
+}
+
+static SOCKET get_sock_from_name(Client *clients, char *name, int actual)
+{
+   int i = 0;
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(name, clients[i].name))
+      {
+         return clients[i].sock;
+      }
+   }
+}
+
+static Awale* get_game_from_player(Awale* games, char *name, int actual)
+{
+   int i = 0;
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(name, games[i].j1) || !strcmp(name, games[i].j2))
+      {
+         return &games[i];
+      }
+   }
 }
 
 int main(int argc, char **argv)

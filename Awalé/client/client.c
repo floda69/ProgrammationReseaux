@@ -5,7 +5,7 @@
 
 #include "client.h"
 #include "../message.h"
-#include "jeu.h"
+#include "../jeu.h"
 
 static void init(void)
 {
@@ -57,8 +57,7 @@ static void app(const char *address, const char *name)
          break;
       case 1:
          //choix de lancer une partie
-         char* opponent;
-         strcpy(opponent,check_invite(sock, buffer, rdfs));
+         char* opponent = check_invite(sock, buffer, rdfs);
          int joueur = 0; // 0 pour le joueur 1, 1 pour le joueur 2
          if(opponent == 0)
          {
@@ -133,64 +132,60 @@ static void app(const char *address, const char *name)
             if (FD_ISSET(STDIN_FILENO, &rdfs))
             {
                (fgets(buffer, BUF_SIZE - 1, stdin));
-               if (!strcmp(buffer, "quit\n"))
+            
+               char *p = NULL;
+               p = strstr(buffer, "\n");
+               if (p != NULL)
                {
-                  break;
+                  *p = 0;
                }
                else
                {
-                  char *p = NULL;
-                  p = strstr(buffer, "\n");
-                  if (p != NULL)
-                  {
-                     *p = 0;
-                  }
-                  else
-                  {
-                     /* fclean */
-                     buffer[BUF_SIZE - 1] = 0;
-                  }
+                  /* fclean */
+                  buffer[BUF_SIZE - 1] = 0;
                }
                if (buffer[0] == '\0') // catch empty message
                {
                   continue;
                }
-               write_server(sock, serialize_message(NEW_GAME, buffer));
-               afficher_plateau(&jeu);
+               if (coup_valide(&jeu, joueur, atoi(buffer)))
+               {
+                  jouer_coup(&jeu, joueur, atoi(buffer));
+                  write_server(sock, serialize_message(PLAY, buffer));
+               }
             }
-
          }
          ////faire gestion du tour par tour
          
-         printf("Lancement d'une nouvelle partie\n");
-         Awale jeu;
-         strncpy(jeu.j1, name, 50);
-         strncpy(jeu.j2, buffer, 50);
+         // printf("Lancement d'une nouvelle partie\n");
+         // Awale jeu;
+         // strncpy(jeu.j1, name, 50);
+         // strncpy(jeu.j2, buffer, 50);
 
-         initialiser_jeu(&jeu);
-         int case_choisie;
+         // initialiser_jeu(&jeu);
+         // int case_choisie;
 
-         printf("Bienvenue dans le jeu d'Awalé !\n");
+         // printf("Bienvenue dans le jeu d'Awalé !\n");
 
-         while (!fin_de_jeu(&jeu))
-         {
-            afficher_plateau(&jeu);
-            printf("Joueur %d, choisissez une case (0 à 5) : ", joueur + 1);
-            scanf("%d", &case_choisie);
+         // while (!fin_de_jeu(&jeu))
+         // {
+         //    afficher_plateau(&jeu);
+         //    printf("Joueur %d, choisissez une case (0 à 5) : ", joueur + 1);
+         //    scanf("%d", &case_choisie);
 
-            if (coup_valide(&jeu, joueur, case_choisie))
-            {
-                  jouer_coup(&jeu, joueur, case_choisie);
-                  joueur = 1 - joueur; // Changement de joueur
-            }
-            else
-            {
-                  printf("Coup invalide, essayez encore.\n");
-            }
-         }
-         printf("Fin du jeu !\n");
-         printf("Score final - Joueur 1: %d, Joueur 2: %d\n", jeu.score[0], jeu.score[1]);
-         game(name, buffer);
+         //    if (coup_valide(&jeu, joueur, case_choisie))
+         //    {
+         //          jouer_coup(&jeu, joueur, case_choisie);
+         //          joueur = 1 - joueur; // Changement de joueur
+         //    }
+         //    else
+         //    {
+         //          printf("Coup invalide, essayez encore.\n");
+         //    }
+         // }
+         // printf("Fin du jeu !\n");
+         // printf("Score final - Joueur 1: %d, Joueur 2: %d\n", jeu.score[0], jeu.score[1]);
+         // game(name, buffer);
       
          break;
       case 2:

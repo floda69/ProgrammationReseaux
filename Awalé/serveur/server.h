@@ -51,5 +51,7 @@ static void remove_client(Client *clients, int to_remove, int *actual);
 static void clear_clients(Client *clients, int actual);
 static char* search_opponent(Client *clients, Client client, int actual, const char *buffer);
 static void check_invite(Client client);
+static SOCKET get_sock_from_name(Client *clients, char *name, int actual);
+static Awale* get_game_from_player(Awale *games, char *name, int nb_games);
 
 #endif /* guard */
