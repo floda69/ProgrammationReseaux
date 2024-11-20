@@ -121,7 +121,7 @@ static void app(const char *address, const char *name)
             write_server(sock, serialize_message(GAME_LIST, ""));
          }
          else
-            printf("%sCommande non reconnue.%s\n", RED, COLOR_RESET);
+            printf("%sInvalid command.%s\n", RED, COLOR_RESET);
       }
       else if (FD_ISSET(sock, &rdfs)) // message from server
       {
@@ -129,7 +129,7 @@ static void app(const char *address, const char *name)
          /* server down */
          if (n == 0)
          {
-            printf("Server disconnected !\n");
+            puts("Server disconnected !");
             break;
          }
          else if (!strncmp(buffer, SERVER_MSG, 2))
@@ -158,6 +158,10 @@ static void app(const char *address, const char *name)
             exit(0);
          }
          else if (!strncmp(buffer, GAME_LIST, 2))
+         {
+            puts(buffer + 2);
+         }
+         else if (!strncmp(buffer, INVITE, 2))
          {
             puts(buffer + 2);
          }
