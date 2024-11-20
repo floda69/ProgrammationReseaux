@@ -96,6 +96,11 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_GLOBAL), strlen(buffer) - strlen(CMD_GLOBAL) + 1);
             write_server(sock, serialize_message(GLOBAL_MSG, buffer));
          }
+         // défier un joueur
+         else if (!strncmp(buffer, CMD_DEFY_PLAYER, strlen(CMD_DEFY_PLAYER))) {
+            memmove(buffer, buffer + strlen(CMD_DEFY_PLAYER), strlen(buffer) - strlen(CMD_DEFY_PLAYER) + 1);
+            write_server(sock, serialize_message(DEFY, buffer));
+         }
 
          else
             puts("Commande non reconnue.\n");
@@ -114,6 +119,10 @@ static void app(const char *address, const char *name)
             puts(buffer+2);
          }
          else if (!strncmp(buffer, GLOBAL_MSG, 2))
+         {
+            puts(buffer+2);
+         }
+         else if (!strncmp(buffer, SERVER_MSG, 2))
          {
             puts(buffer+2);
          }
@@ -432,77 +441,77 @@ static void write_server(SOCKET sock, const char *buffer)
    }
 }
 
-static char *check_invite(SOCKET sock, char *buffer, fd_set rdfs)
-{
-   write_server(sock, serialize_message(ASK_INVITE, buffer));
-   discard_old_messages(sock);
-   while (1)
-   {
-      FD_ZERO(&rdfs);
+// static char *check_invite(SOCKET sock, char *buffer, fd_set rdfs)
+// {
+//    write_server(sock, serialize_message(ASK_INVITE, buffer));
+//    discard_old_messages(sock);
+//    while (1)
+//    {
+//       FD_ZERO(&rdfs);
 
-      /* add STDIN_FILENO */
-      FD_SET(STDIN_FILENO, &rdfs);
+//       /* add STDIN_FILENO */
+//       FD_SET(STDIN_FILENO, &rdfs);
 
-      /* add the socket */
-      FD_SET(sock, &rdfs);
+//       /* add the socket */
+//       FD_SET(sock, &rdfs);
 
-      if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-      {
-         perror("select()");
-         exit(errno);
-      }
-      if (FD_ISSET(sock, &rdfs))
-      {
-         int n = read_server(sock, buffer);
-         return (buffer);
-      }
-   }
-}
+//       if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+//       {
+//          perror("select()");
+//          exit(errno);
+//       }
+//       if (FD_ISSET(sock, &rdfs))
+//       {
+//          int n = read_server(sock, buffer);
+//          return (buffer);
+//       }
+//    }
+// }
 
-static void send_invite(SOCKET sock, char *buffer, fd_set rdfs)
-{
-   printf("entrez le nom du joueur à défier\n");
-   while (1)
-   {
-      FD_ZERO(&rdfs);
+// static void send_invite(SOCKET sock, char *buffer, fd_set rdfs)
+// {
+//    printf("entrez le nom du joueur à défier\n");
+//    while (1)
+//    {
+//       FD_ZERO(&rdfs);
 
-      /* add STDIN_FILENO */
-      FD_SET(STDIN_FILENO, &rdfs);
+//       /* add STDIN_FILENO */
+//       FD_SET(STDIN_FILENO, &rdfs);
 
-      /* add the socket */
-      FD_SET(sock, &rdfs);
+//       /* add the socket */
+//       FD_SET(sock, &rdfs);
 
-      if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
-      {
-         perror("select()");
-         exit(errno);
-      }
+//       if (select(sock + 1, &rdfs, NULL, NULL, NULL) == -1)
+//       {
+//          perror("select()");
+//          exit(errno);
+//       }
 
-      /* something from standard input : i.e keyboard */
-      if (FD_ISSET(STDIN_FILENO, &rdfs))
-      {
-         (fgets(buffer, BUF_SIZE - 1, stdin));
+//       /* something from standard input : i.e keyboard */
+//       if (FD_ISSET(STDIN_FILENO, &rdfs))
+//       {
+//          (fgets(buffer, BUF_SIZE - 1, stdin));
 
-         char *p = NULL;
-         p = strstr(buffer, "\n");
-         if (p != NULL)
-         {
-            *p = 0;
-         }
-         else
-         {
-            /* fclean */
-            buffer[BUF_SIZE - 1] = 0;
-         }
-         if (buffer[0] == 0) // catch empty message
-         {
-            continue;
-         }
-         write_server(sock, serialize_message(NEW_GAME, buffer));
-         break;
-      }
-   }
-}
+//          char *p = NULL;
+//          p = strstr(buffer, "\n");
+//          if (p != NULL)
+//          {
+//             *p = 0;
+//          }
+//          else
+//          {
+//             /* fclean */
+//             buffer[BUF_SIZE - 1] = 0;
+//          }
+//          if (buffer[0] == 0) // catch empty message
+//          {
+//             continue;
+//          }
+//          write_server(sock, serialize_message(NEW_GAME, buffer));
+//          break;
+//       }
+//    }
+// }
 
 int main(int argc, char **argv)
 {

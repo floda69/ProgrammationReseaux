@@ -94,7 +94,7 @@ static void app(void)
          strncpy(c.name, buffer, BUF_SIZE - 1);
          clients[actual] = c;
          actual++;
-         
+
          strncat(buffer, " just connected !\n", BUF_SIZE - strlen(buffer) - 1);
          send_message_to_all_clients(clients, c, actual, buffer, 1);
       }
@@ -132,13 +132,9 @@ static void app(void)
                   {
                      send_message_to_all_clients(clients, client, actual, buffer + 3, 0);
                   }
-                  else if (strncmp(buffer, NEW_GAME, 2) == 0)
+                  else if (strncmp(buffer, DEFY, 2) == 0)
                   {
-                     search_opponent(clients, client, actual, buffer + 2);
-                  }
-                  else if (strncmp(buffer, ASK_INVITE, 2) == 0)
-                  {
-                     check_invite(client);
+                     defy_player(clients, client, actual, buffer + 2);
                   }
                }
                break;
@@ -179,31 +175,42 @@ static void send_message_to_all_clients(Client *clients, Client sender, int actu
       if ((sender.sock != clients[i].sock) && (clients[i].isInGlobalChatMode == 1))
       {
          strncpy(message, GLOBAL_MSG, BUF_SIZE - 1);
+         strncat(message, GREEN, sizeof message - strlen(message) - 1);
          if (!from_server)
          {
+            strncat(message, YELLOW, sizeof message - strlen(message) - 1);
             strncat(message, sender.name, sizeof message - strlen(message) - 1);
             strncat(message, " : ", sizeof message - strlen(message) - 1);
          }
          strncat(message, buffer, sizeof message - strlen(message) - 1);
+         strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
          write_client(clients[i].sock, message);
       }
    }
 }
 
-static void send_new_connection_message_to_all_clients(Client *clients, Client newClient, int actual)
+static void send_message_to_client(Client receiver, const char *buffer)
+{
+   char message[BUF_SIZE];
+   message[0] = 0;
+   strncpy(message, SERVER_MSG, BUF_SIZE - 1);
+   strncat(message, BLUE, sizeof message - strlen(message) - 1);
+   strncat(message, buffer, sizeof message - strlen(message) - 1);
+   strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
+   write_client(receiver.sock, message);
+}
+
+static void defy_player(Client *clients, Client defier, int actual, const char *playerDefied)
 {
    int i = 0;
    char message[BUF_SIZE];
-   message[0] = 0;
+   message[0] = '\n';
    for (i = 0; i < actual; i++)
    {
-      /* we don't send message to the sender */
-      if (newClient.sock != clients[i].sock)
+      if (!strcmp(playerDefied, clients[i].name) && clients[i].isInGame == 0)
       {
-         strncpy(message, GLOBAL_MSG, BUF_SIZE - 1);
-         strncat(message, "Nouvelle connection de : ", sizeof message - strlen(message) - 1);
-         strncat(message, newClient.name, sizeof message - strlen(message) - 1);
-         write_client(clients[i].sock, message);
+         send_message_to_client(defier, "Demande envoyée");
+         break;
       }
    }
 }
@@ -216,6 +223,7 @@ static void send_clients_list_on_demand(Client *clients, Client client, int actu
    int clients_online = 0;
 
    strncpy(message, PLAYERS_LIST, BUF_SIZE - 1);
+   strncat(message, BLUE, sizeof message - strlen(message) - 1);
    strncat(message, "Liste des joueurs: \n", sizeof message - strlen(message) - 1);
 
    for (i = 0; i < actual; i++)
@@ -232,6 +240,8 @@ static void send_clients_list_on_demand(Client *clients, Client client, int actu
    {
       strncpy(message, "Aucun autre joueur en ligne.\n", sizeof message - strlen(message) - 1);
    }
+
+   strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
 
    write_client(client.sock, message);
 }
@@ -306,36 +316,36 @@ static void write_client(SOCKET sock, const char *buffer)
    }
 }
 
-static void search_opponent(Client *clients, Client client, int actual, const char *buffer)
-{
-   int i = 0;
-   char message[BUF_SIZE];
-   message[0] = '\n';
-   for (i = 0; i < actual; i++)
-   {
-      if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0)
-      {
-         strncpy(message, clients[i].name, BUF_SIZE - 1);
-         strncpy(clients[i].invite, client.name, 50);
-         clients[i].isInGame = 1;
-         client.isInGame = 1;
-         break;
-      }
-   }
-   write_client(client.sock, message);
-}
+// static void search_opponent(Client *clients, Client client, int actual, const char *buffer)
+// {
+//    int i = 0;
+//    char message[BUF_SIZE];
+//    message[0] = '\n';
+//    for (i = 0; i < actual; i++)
+//    {
+//       if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0)
+//       {
+//          strncpy(message, clients[i].name, BUF_SIZE - 1);
+//          strncpy(clients[i].invite, client.name, 50);
+//          clients[i].isInGame = 1;
+//          client.isInGame = 1;
+//          break;
+//       }
+//    }
+//    write_client(client.sock, message);
+// }
 
-static void check_invite(Client client)
-{
-   char message[BUF_SIZE];
-   message[0] = '\n';
-   if (client.invite[0] != '\0')
-   {
-      strncpy(message, client.invite, BUF_SIZE - 1);
-      client.invite[0] = '\0';
-   }
-   write_client(client.sock, message);
-}
+// static void check_invite(Client client)
+// {
+//    char message[BUF_SIZE];
+//    message[0] = '\n';
+//    if (client.invite[0] != '\0')
+//    {
+//       strncpy(message, client.invite, BUF_SIZE - 1);
+//       client.invite[0] = '\0';
+//    }
+//    write_client(client.sock, message);
+// }
 
 int main(int argc, char **argv)
 {
