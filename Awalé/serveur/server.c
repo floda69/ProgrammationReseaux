@@ -222,14 +222,15 @@ static void defy_player(Client *clients, Client defier, int actual, const char *
    char message[BUF_SIZE];
    for (i = 0; i < actual; i++)
    {
-      if (!strcmp(playerDefied, clients[i].name) && clients[i].invite[0] == 0 && defier.invite[0] == 0)
+      if (!strcmp(playerDefied, clients[i].name) && clients[i].invite[0] == 0 && defier.invite[0] == 0 && strcmp(defier.name, playerDefied))
       {
          strcpy(clients[i].invite, defier.name);
          int index = get_index_by_name(clients, defier.name, actual);
          strcpy(clients[index].invite, playerDefied);
-         strncpy(message, DEFY, BUF_SIZE - 1);
+         strncpy(message, "Vous avez été défié par ", BUF_SIZE - 1);
          strcat(message, defier.name);
-         write_client(clients[i].sock, message);
+         strcat(message, "\nVoulez-vous accepter ?\n");
+         send_message_to_client(clients[i], message);
          send_message_to_client(defier, "Demande envoyée");
          ok = 1;
          break;

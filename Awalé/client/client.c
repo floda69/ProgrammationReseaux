@@ -129,11 +129,6 @@ static void app(const char *address, const char *name)
          {
             puts(buffer + 2);
          }
-         else if (!strncmp(buffer,DEFY,2))
-         {
-            printf("%sVous avez été défié par%s %s\n%s",BLUE, GREEN, buffer+2, COLOR_RESET);
-            printf("%sVoulez-vous accepter ?%s (y/n)\n",BLUE,COLOR_RESET);
-         }
          else if (!strncmp(buffer,NAME_USED,2))
          {
             printf("Nom déjà utilisé, veuillez en choisir un autre\n");
