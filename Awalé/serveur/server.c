@@ -103,7 +103,7 @@ static void app(void)
          FD_SET(csock, &rdfs);
 
          Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0};
-         strncpy(c.name, buffer, BUF_SIZE - 1);
+         strncpy(c.name, buffer, NAME_SIZE - 1);
          clients[actual] = c;
          actual++;
 
@@ -147,6 +147,12 @@ static void app(void)
                   else if (strncmp(buffer, DEFY, 2) == 0)
                   {
                      defy_player(clients, client, actual, buffer + 2);
+                  }
+                  else if (strncmp(buffer, ACCEPT_INVITE,2)==0){
+                     accept_invite(clients, client, actual);
+                  }
+                  else if (strncmp(buffer, DECLINE_INVITE,2)==0){
+                     decline_invite(clients, client, actual);
                   }
                }
                break;
@@ -218,7 +224,6 @@ static void send_message_to_client(Client receiver, const char *buffer)
 static void defy_player(Client *clients, Client defier, int actual, const char *playerDefied)
 {
    int i = 0;
-   int ok = 0;
    char message[BUF_SIZE];
    for (i = 0; i < actual; i++)
    {
@@ -226,17 +231,60 @@ static void defy_player(Client *clients, Client defier, int actual, const char *
       {
          strcpy(clients[i].invite, defier.name);
          int index = get_index_by_name(clients, defier.name, actual);
-         strcpy(clients[index].invite, playerDefied);
+         clients[index].invite[0] = 1;
+         strcpy(&clients[index].invite[1], playerDefied);
          strncpy(message, "Vous avez été défié par ", BUF_SIZE - 1);
+         strcat(message, GREEN);
          strcat(message, defier.name);
+         strcat(message, BLUE);
          strcat(message, "\nVoulez-vous accepter ?\n");
          send_message_to_client(clients[i], message);
          send_message_to_client(defier, "Demande envoyée");
-         ok = 1;
+         return;
+      }
+   }
+   send_message_to_client(defier, "impossible d'envoyer la demande");
+}
+
+static void decline_invite(Client *clients, Client client, int actual){
+   int i = 0;
+   if (client.invite[0] == 0)
+   {
+      send_message_to_client(client, "Pas de demande en cours");
+      return;
+   }
+   if (client.invite[0] == 1)
+   {
+      send_message_to_client(client, "Annulation de la demande");
+      int index = get_index_by_name(clients, &client.invite[1], actual);
+      clients[index].invite[0] = 0;
+      client.invite[0] = 0;
+      send_message_to_client(clients[index], "Demande annulée");
+      return;
+   }
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(client.invite, clients[i].name))
+      {
+         send_message_to_client(clients[i], "Demande refusée");
+         int index = get_index_by_name(clients, client.name, actual);
+         clients[index].invite[0] = 0;
+         clients[i].invite[0] = 0;
+         return;
+      }
+   }
+}
+
+static void accept_invite(Client *clients, Client client, int actual){
+   int i = 0;
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(client.invite, clients[i].name))
+      {
+         send_message_to_client(clients[i], "Demande acceptée");
          break;
       }
    }
-   if(!ok) send_message_to_client(defier, "impossible d'envoyer la demande");
 }
 
 static void send_clients_list_on_demand(Client *clients, Client client, int actual)

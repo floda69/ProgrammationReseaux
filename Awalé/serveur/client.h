@@ -7,10 +7,10 @@
 typedef struct
 {
    SOCKET sock;
-   char name[BUF_SIZE];
+   char name[NAME_SIZE];
    int isInGame;
    int isInGlobalChatMode;
-   char invite[50];
+   char invite[NAME_SIZE+1];
    char bio[200];
 }Client;
 

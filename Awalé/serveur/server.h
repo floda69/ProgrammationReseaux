@@ -32,6 +32,7 @@ typedef struct in_addr IN_ADDR;
 #define MAX_CLIENTS     100
 
 #define BUF_SIZE    1024
+#define NAME_SIZE    50
 
 #include "client.h"
 #include "../message.h"
@@ -53,6 +54,8 @@ static void clear_clients(Client *clients, int actual);
 static void search_opponent(Client *clients, Client client, int actual, const char *buffer);
 static void check_invite(Client client);
 static int get_index_by_name(Client *clients, char *name, int actual);
+static void decline_invite(Client *clients, Client client, int actual);
+static void accept_invite(Client *clients, Client client, int actual);
 
 
 #endif /* guard */

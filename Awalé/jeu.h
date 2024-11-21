@@ -7,6 +7,7 @@
 #define J2 1
 
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct {
     int plateau[2][NBR_CASES]; // 2 rangées de 6 cases

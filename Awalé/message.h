@@ -22,6 +22,8 @@
 #define CMD_SWITCH_CHAT_MODE "/switch chat mode"
 #define CMD_GLOBAL "/global"
 #define CMD_DEFY_PLAYER "/defy "
+#define CMD_ACCEPT_INVITE "/accept"
+#define CMD_DECLINE_INVITE "/decline"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

@@ -20,17 +20,6 @@ static void init(void)
 #endif
 }
 
-void discard_old_messages(int sock)
-{
-   char temp_buffer[BUF_SIZE];
-   int flags = MSG_DONTWAIT; // Non-blocking flag
-
-   while (recv(sock, temp_buffer, BUF_SIZE - 1, flags) > 0)
-   {
-      // Discard the message
-   }
-}
-
 static void end(void)
 {
 #ifdef WIN32
@@ -46,7 +35,6 @@ static void app(const char *address, const char *name)
    fd_set rdfs;
 
    int connected = 1;
-   time_t t;
 
    /* send our name */
    write_server(sock, name);
@@ -103,6 +91,16 @@ static void app(const char *address, const char *name)
          {
             memmove(buffer, buffer + strlen(CMD_DEFY_PLAYER), strlen(buffer) - strlen(CMD_DEFY_PLAYER) + 1);
             write_server(sock, serialize_message(DEFY, buffer));
+         }
+         // accepter un défi
+         else if (!strcmp(buffer, CMD_ACCEPT_INVITE)){
+            memmove(buffer, buffer + strlen(CMD_ACCEPT_INVITE), strlen(buffer) - strlen(CMD_ACCEPT_INVITE) + 1);
+            write_server(sock, serialize_message(ACCEPT_INVITE, ""));
+         }
+         // refuser un défi
+         else if (!strcmp(buffer, CMD_DECLINE_INVITE)){
+            memmove(buffer, buffer + strlen(CMD_DECLINE_INVITE), strlen(buffer) - strlen(CMD_DECLINE_INVITE) + 1);
+            write_server(sock, serialize_message(DECLINE_INVITE, ""));
          }
 
          else
