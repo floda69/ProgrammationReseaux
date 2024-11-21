@@ -36,6 +36,7 @@ typedef struct in_addr IN_ADDR;
 
 #include "client.h"
 #include "../message.h"
+#include "../jeu.h"
 #include <string.h>
 
 static void init(void);
@@ -56,6 +57,6 @@ static void check_invite(Client client);
 static int get_index_by_name(Client *clients, char *name, int actual);
 static void decline_invite(Client *clients, Client client, int actual);
 static void accept_invite(Client *clients, Client client, int actual);
-
+static void launch_game(Client *clients, Client client, int actual, Awale *games, int *gameIndex);
 
 #endif /* guard */

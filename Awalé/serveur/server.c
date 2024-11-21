@@ -34,6 +34,8 @@ static void app(void)
    int max = sock;
    /* an array for all clients */
    Client clients[MAX_CLIENTS];
+   Awale games[MAX_CLIENTS];
+   int gameIndex = 0;
 
    fd_set rdfs;
 
@@ -150,6 +152,7 @@ static void app(void)
                   }
                   else if (strncmp(buffer, ACCEPT_INVITE,2)==0){
                      accept_invite(clients, client, actual);
+                     launch_game(clients, client, actual, games, &gameIndex);
                   }
                   else if (strncmp(buffer, DECLINE_INVITE,2)==0){
                      decline_invite(clients, client, actual);
@@ -262,6 +265,11 @@ static void decline_invite(Client *clients, Client client, int actual){
       send_message_to_client(clients[index], "Demande annulée");
       return;
    }
+   if (client.invite[0] == 2)
+   {
+      send_message_to_client(client, "Impossible pendant une partie");
+      return;
+   }
    for (i = 0; i < actual; i++)
    {
       if (!strcmp(client.invite, clients[i].name))
@@ -277,14 +285,42 @@ static void decline_invite(Client *clients, Client client, int actual){
 
 static void accept_invite(Client *clients, Client client, int actual){
    int i = 0;
+   if (client.invite[0] == 1)
+   {
+      send_message_to_client(client, "Attendez la réponse du joueur défié");
+      return;
+   }
+   if (client.invite[0] == 2)
+   {
+      send_message_to_client(client, "Impossible pendant une partie");
+      return;
+   }
    for (i = 0; i < actual; i++)
    {
       if (!strcmp(client.invite, clients[i].name))
       {
          send_message_to_client(clients[i], "Demande acceptée");
+         int index = get_index_by_name(clients, client.name, actual);
+         clients[index].isInGame = 1;
+         clients[i].isInGame = 1;
+         clients[index].invite[0] = 2;
+         clients[i].invite[0] = 2;
          break;
       }
    }
+}
+
+static void launch_game(Client *clients, Client client, int actual, Awale *games, int *gameIndex)
+{
+   Awale jeu;
+   jeu.turn = rand() % 2;
+   strncpy(jeu.j1, client.name, 50);
+   strncpy(jeu.j2, client.invite, 50);
+   initialiser_jeu(&jeu);
+   games[*gameIndex] = jeu;
+   (*gameIndex)++;
+   send_message_to_client(client, "Bienvenue dans le jeu d'Awalé !\n");
+   send_message_to_client(clients[get_index_by_name(clients, client.invite, actual)], "Bienvenue dans le jeu d'Awalé !\n");
 }
 
 static void send_clients_list_on_demand(Client *clients, Client client, int actual)
