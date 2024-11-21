@@ -218,6 +218,7 @@ static void send_message_to_client(Client receiver, const char *buffer)
 static void defy_player(Client *clients, Client defier, int actual, const char *playerDefied)
 {
    int i = 0;
+   int ok = 0;
    char message[BUF_SIZE];
    for (i = 0; i < actual; i++)
    {
@@ -230,10 +231,11 @@ static void defy_player(Client *clients, Client defier, int actual, const char *
          strcat(message, defier.name);
          write_client(clients[i].sock, message);
          send_message_to_client(defier, "Demande envoyée");
+         ok = 1;
          break;
       }
-      send_message_to_client(defier, "impossible d'envoyer la demande");
    }
+   if(!ok) send_message_to_client(defier, "impossible d'envoyer la demande");
 }
 
 static void send_clients_list_on_demand(Client *clients, Client client, int actual)
