@@ -107,7 +107,7 @@ static void app(const char *address, const char *name)
          else
             printf("%sCommande non reconnue.%s\n", RED, COLOR_RESET);
       }
-      else if (FD_ISSET(sock, &rdfs))
+      else if (FD_ISSET(sock, &rdfs)) // message from server
       {
          int n = read_server(sock, buffer);
          /* server down */
@@ -127,6 +127,11 @@ static void app(const char *address, const char *name)
          else if (!strncmp(buffer, SERVER_MSG, 2))
          {
             puts(buffer + 2);
+         }
+         else if (!strncmp(buffer,NAME_USED,2))
+         {
+            printf("Nom déjà utilisé, veuillez en choisir un autre\n");
+            exit(0);
          }
       }
    }

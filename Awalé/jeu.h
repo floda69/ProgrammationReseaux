@@ -13,6 +13,7 @@ typedef struct {
     int score[2];              // Scores des deux joueurs
     char j1[50];
     char j2[50];
+    int turn;
 } Awale;
 
 // Initialisation du jeu

@@ -7,12 +7,14 @@
 #include <stdlib.h>
 
 // codes for our protocol
+#define NAME_USED "00"
 #define GLOBAL_MSG "01"
 #define SWITCH_CHAT "02"
 #define PLAYERS_LIST "03"
 #define SERVER_MSG "04"
 #define DEFY "05"
 #define ACCEPT_INVITE "06"
+#define DECLINE_INVITE "07"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"

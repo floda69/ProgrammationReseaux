@@ -87,6 +87,17 @@ static void app(void)
 
          /* what is the new maximum fd ? */
          max = csock > max ? csock : max;
+         
+         int name_used = 0;
+         for (int i = 0; i < actual; i++){
+            if (strcmp(clients[i].name, buffer) == 0){
+               write_client(csock, NAME_USED);
+               name_used = 1;
+            }
+         }
+         if (name_used){
+            continue;
+         }
 
          FD_SET(csock, &rdfs);
 
