@@ -93,6 +93,7 @@ static void app(void)
             if (strcmp(clients[i].name, buffer) == 0){
                write_client(csock, NAME_USED);
                name_used = 1;
+               break;
             }
          }
          if (name_used){
@@ -218,14 +219,20 @@ static void defy_player(Client *clients, Client defier, int actual, const char *
 {
    int i = 0;
    char message[BUF_SIZE];
-   message[0] = '\n';
    for (i = 0; i < actual; i++)
    {
-      if (!strcmp(playerDefied, clients[i].name) && clients[i].isInGame == 0)
+      if (!strcmp(playerDefied, clients[i].name) && clients[i].invite[0] == 0 && defier.invite[0] == 0)
       {
+         strcpy(clients[i].invite, defier.name);
+         int index = get_index_by_name(clients, defier.name, actual);
+         strcpy(clients[index].invite, playerDefied);
+         strncpy(message, DEFY, BUF_SIZE - 1);
+         strcat(message, defier.name);
+         write_client(clients[i].sock, message);
          send_message_to_client(defier, "Demande envoyée");
          break;
       }
+      send_message_to_client(defier, "impossible d'envoyer la demande");
    }
 }
 
@@ -329,6 +336,19 @@ static void write_client(SOCKET sock, const char *buffer)
       exit(errno);
    }
 }
+
+static int get_index_by_name(Client *clients, char *name, int actual)
+{
+   int i = 0;
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(name, clients[i].name))
+      {
+         return i;
+      }
+   }
+}
+
 
 // static void search_opponent(Client *clients, Client client, int actual, const char *buffer)
 // {

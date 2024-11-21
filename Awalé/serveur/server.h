@@ -52,5 +52,7 @@ static void remove_client(Client *clients, int to_remove, int *actual);
 static void clear_clients(Client *clients, int actual);
 static void search_opponent(Client *clients, Client client, int actual, const char *buffer);
 static void check_invite(Client client);
+static int get_index_by_name(Client *clients, char *name, int actual);
+
 
 #endif /* guard */
