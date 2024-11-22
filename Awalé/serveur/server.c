@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "server.h"
+#include "client.h"
 
 static void init(void)
 {
@@ -71,10 +72,10 @@ static void app(void)
       else if (FD_ISSET(sock, &rdfs))
       {
          /* new client */
-         SOCKADDR_IN csin = {0};
+         SOCKADDR_IN csin = { 0 };
          size_t sinsize = sizeof csin;
          int csock = accept(sock, (SOCKADDR *)&csin, &sinsize);
-         if (csock == SOCKET_ERROR)
+         if(csock == SOCKET_ERROR)
          {
             perror("accept()");
             continue;
@@ -299,7 +300,6 @@ static void accept_invite(Client *clients, Client client, int actual){
    {
       if (!strcmp(client.invite, clients[i].name))
       {
-         send_message_to_client(clients[i], "Demande acceptée");
          int index = get_index_by_name(clients, client.name, actual);
          clients[index].isInGame = 1;
          clients[i].isInGame = 1;
@@ -314,13 +314,28 @@ static void launch_game(Client *clients, Client client, int actual, Awale *games
 {
    Awale jeu;
    jeu.turn = rand() % 2;
+   Client opponent = clients[get_index_by_name(clients, client.invite, actual)];
    strncpy(jeu.j1, client.name, 50);
-   strncpy(jeu.j2, client.invite, 50);
+   strncpy(jeu.j2, opponent.name , 50);
    initialiser_jeu(&jeu);
    games[*gameIndex] = jeu;
    (*gameIndex)++;
    send_message_to_client(client, "Bienvenue dans le jeu d'Awalé !\n");
-   send_message_to_client(clients[get_index_by_name(clients, client.invite, actual)], "Bienvenue dans le jeu d'Awalé !\n");
+   send_message_to_client(opponent, "Demande acceptée\nBienvenue dans le jeu d'Awalé !\n");
+   usleep(100000); //wait to be sure the messages are separated
+   send_game(&jeu, clients, actual);
+}
+
+static void send_game(Awale *game, Client* clients, int actual)
+{
+   char message[BUF_SIZE];
+   memset(message, 0, BUF_SIZE);
+   strncpy(message, GAME, BUF_SIZE - 1);
+   serialize_awale(game, message + 2, BUF_SIZE - 3);
+   int index1 = get_index_by_name(clients, game->j1, actual);
+   int index2 = get_index_by_name(clients, game->j2, actual);
+   write_client(clients[index1].sock, message);
+   write_client(clients[index2].sock, message);
 }
 
 static void send_clients_list_on_demand(Client *clients, Client client, int actual)

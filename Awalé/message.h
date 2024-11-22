@@ -15,6 +15,7 @@
 #define DEFY "05"
 #define ACCEPT_INVITE "06"
 #define DECLINE_INVITE "07"
+#define GAME "08"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -37,8 +38,7 @@
 
 const char* serialize_message(char *code, const char *message);
 
-void serialize_coup(Awale *jeu, char *buffer);
-
-void deserialize_coup(Awale *jeu, char *buffer);
+void serialize_awale(Awale *jeu, char *buffer, size_t buffer_size);
+void deserialize_awale(Awale *jeu, const char *buffer);
 
 #endif /* guard */

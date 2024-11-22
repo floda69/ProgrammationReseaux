@@ -115,6 +115,10 @@ static void app(const char *address, const char *name)
             printf("Server disconnected !\n");
             break;
          }
+         else if (!strncmp(buffer, SERVER_MSG, 2))
+         {
+            puts(buffer + 2);
+         }
          else if (!strncmp(buffer, PLAYERS_LIST, 2))
          {
             puts(buffer + 2);
@@ -123,11 +127,15 @@ static void app(const char *address, const char *name)
          {
             puts(buffer + 2);
          }
-         else if (!strncmp(buffer, SERVER_MSG, 2))
+         else if (!strncmp(buffer, GAME, 2))
          {
-            puts(buffer + 2);
+            Awale jeu;
+            deserialize_awale(&jeu, buffer + 2);
+            afficher_plateau(&jeu);
+            if ((strcmp(jeu.j1, name) && jeu.turn==0) || (strcmp(jeu.j2, name) && jeu.turn==1)) 
+               printf("%s%s, choisissez une case (0 à 5) %s\n", MAGENTA, name, COLOR_RESET);
          }
-         else if (!strncmp(buffer,NAME_USED,2))
+         else if (!strncmp(buffer, NAME_USED,2))
          {
             printf("Nom déjà utilisé, veuillez en choisir un autre\n");
             exit(0);
