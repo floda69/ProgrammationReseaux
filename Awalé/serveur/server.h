@@ -59,6 +59,7 @@ static void accept_invite(Client *clients, Client client, int actual);
 static void launch_game(Client *clients, Client client, int actual, Awale *games, int *gameIndex);
 static void send_game(Awale *game, Client* clients, int actual);
 static int get_game_index_by_name(Awale *games, char *name, int actual);
-
+static void play(int case_choisie, Client *clients, Client client, int actual, Awale *games, int *gameIndex);
+static void end_game(Awale* games, int gameIndex, Awale *game, int index_game, Client *clients, int actual);
 
 #endif /* guard */

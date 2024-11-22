@@ -17,6 +17,7 @@
 #define DECLINE_INVITE "07"
 #define GAME "08"
 #define PLAY "09"
+#define END_GAME "10"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"

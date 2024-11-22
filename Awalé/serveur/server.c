@@ -160,21 +160,8 @@ static void app(void)
                   }
                   else if (strncmp(buffer, PLAY, 2) == 0)
                   {
-                     if (client.isInGame == 1)
-                     {
-                        int index_game = get_game_index_by_name(games, client.name, gameIndex);
-                        if ( (games[index_game].turn == 0 && strcmp(games[index_game].j1, client.name) == 0) || (games[index_game].turn == 1 && strcmp(games[index_game].j2, client.name) == 0)){
-                           jouer_coup(&games[index_game], games[index_game].turn, buffer[2] - '0');
-                           games[index_game].turn = 1 - games[index_game].turn;
-                           send_game(&games[index_game], clients, actual);
-                        }
-                        else{
-                           send_message_to_client(client, "Ce n'est pas votre tour");
-                        }
-                     }
-                     else{
-                        send_message_to_client(client, "Impossible de jouer sans partie en cours");
-                     }
+                     play(buffer[2] - '0', clients, client, actual, games, &gameIndex);
+                     
                   }
                      
                }
@@ -280,8 +267,9 @@ static void decline_invite(Client *clients, Client client, int actual){
    {
       send_message_to_client(client, "Annulation de la demande");
       int index = get_player_index_by_name(clients, &client.invite[1], actual);
+      int moi = get_player_index_by_name(clients, client.name, actual);
       clients[index].invite[0] = 0;
-      client.invite[0] = 0;
+      clients[moi].invite[0] = 0;
       send_message_to_client(clients[index], "Demande annulée");
       return;
    }
@@ -305,6 +293,11 @@ static void decline_invite(Client *clients, Client client, int actual){
 
 static void accept_invite(Client *clients, Client client, int actual){
    int i = 0;
+   if (client.invite[0] == 0)
+   {
+      send_message_to_client(client, "Pas de demande en cours");
+      return;
+   }
    if (client.invite[0] == 1)
    {
       send_message_to_client(client, "Attendez la réponse du joueur défié");
@@ -334,7 +327,6 @@ static void launch_game(Client *clients, Client client, int actual, Awale *games
    Awale jeu;
    Client opponent = clients[get_player_index_by_name(clients, client.invite, actual)];
    int who_start = rand() % 2;
-   printf("who start : %d\n", who_start);
    if (who_start == 0){
       strncpy(jeu.j1, client.name, 50);
       strncpy(jeu.j2, opponent.name , 50);
@@ -343,7 +335,6 @@ static void launch_game(Client *clients, Client client, int actual, Awale *games
       strncpy(jeu.j2, client.name, 50);
       strncpy(jeu.j1, opponent.name , 50);
    }
-   printf("j1 : %s, j2 : %s\n", jeu.j1, jeu.j2);
    jeu.turn = 0;
    initialiser_jeu(&jeu);
    games[*gameIndex] = jeu;
@@ -375,6 +366,60 @@ static int get_game_index_by_name(Awale *games, char *name, int actual)
       {
          return i;
       }
+   }
+}
+
+static void play(int case_choisie, Client *clients, Client client, int actual, Awale *games, int *gameIndex)
+{
+   if (client.isInGame == 1)
+   {
+      int index_game = get_game_index_by_name(games, client.name, gameIndex);
+      if ( (games[index_game].turn == 0 && strcmp(games[index_game].j1, client.name) == 0) || (games[index_game].turn == 1 && strcmp(games[index_game].j2, client.name) == 0)){
+         jouer_coup(&games[index_game], games[index_game].turn, case_choisie);
+         games[index_game].turn = 1 - games[index_game].turn;
+         send_game(&games[index_game], clients, actual);
+         if (fin_de_jeu(&games[index_game])){
+            usleep(100000); //wait 0.1s to be sure the messages are separated
+            end_game(&games[index_game], clients, actual);
+         }
+      }
+      else{
+         send_message_to_client(client, "Ce n'est pas votre tour");
+      }
+   }
+   else{
+      send_message_to_client(client, "Impossible de jouer sans partie en cours");
+   } 
+}
+
+static void end_game(Awale* games, int gameIndex, Awale *game, int index_game, Client *clients, int actual){
+   int index1 = get_player_index_by_name(clients, game->j1, actual);
+   int index2 = get_player_index_by_name(clients, game->j2, actual);
+   char message[BUF_SIZE];
+   message[0] = 0;
+   strncpy(message, END_GAME, BUF_SIZE - 1);
+   if (game->score[0] > game->score[1]){
+      strncat(message, clients[index1].name , BUF_SIZE - strlen(message) - 1);
+      strncat(message, " a gagné !\n", BUF_SIZE - strlen(message) - 1);
+      send_message_to_client(clients[index1], message);
+      send_message_to_client(clients[index2], message);
+   }
+   else if (game->score[0] < game->score[1]){
+       strncat(message, clients[index2].name , BUF_SIZE - strlen(message) - 1);
+      strncat(message, " a gagné !\n", BUF_SIZE - strlen(message) - 1);
+      send_message_to_client(clients[index1], message);
+      send_message_to_client(clients[index2], message);
+   }
+   else{
+      send_message_to_client(clients[index1], "Match nul !");
+      send_message_to_client(clients[index2], "Match nul !");
+   }
+   clients[index1].isInGame = 0;
+   clients[index2].isInGame = 0;
+   clients[index1].invite[0] = 0;
+   clients[index2].invite[0] = 0;
+   for (int i = index_game; i <= gameIndex - 1; i++){
+      games[i] = games[i+1];
    }
 }
 
