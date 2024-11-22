@@ -16,6 +16,7 @@
 #define ACCEPT_INVITE "06"
 #define DECLINE_INVITE "07"
 #define GAME "08"
+#define PLAY "09"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -25,6 +26,7 @@
 #define CMD_DEFY_PLAYER "/defy "
 #define CMD_ACCEPT_INVITE "/accept"
 #define CMD_DECLINE_INVITE "/decline"
+#define CMD_PLAY "/play"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

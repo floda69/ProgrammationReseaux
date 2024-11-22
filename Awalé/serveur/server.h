@@ -47,17 +47,18 @@ static void end_connection(int sock);
 static int read_client(SOCKET sock, char *buffer);
 static void write_client(SOCKET sock, const char *buffer);
 static void send_message_to_all_clients(Client *clients, Client client, int actual, const char *buffer, char from_server);
+static void send_message_to_client(Client receiver, const char *buffer);
 static void send_clients_list_on_demand(Client *clients, Client client, int actual);
 static void switch_client_chat_mode(Client *client);
 static void defy_player(Client *clients, Client defier, int actual, const char *playerDefied);
 static void remove_client(Client *clients, int to_remove, int *actual);
 static void clear_clients(Client *clients, int actual);
-static void search_opponent(Client *clients, Client client, int actual, const char *buffer);
-static void check_invite(Client client);
-static int get_index_by_name(Client *clients, char *name, int actual);
+static int get_player_index_by_name(Client *clients, char *name, int actual);
 static void decline_invite(Client *clients, Client client, int actual);
 static void accept_invite(Client *clients, Client client, int actual);
 static void launch_game(Client *clients, Client client, int actual, Awale *games, int *gameIndex);
 static void send_game(Awale *game, Client* clients, int actual);
+static int get_game_index_by_name(Awale *games, char *name, int actual);
+
 
 #endif /* guard */

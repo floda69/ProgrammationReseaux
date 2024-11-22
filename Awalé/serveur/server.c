@@ -37,7 +37,7 @@ static void app(void)
    Client clients[MAX_CLIENTS];
    Awale games[MAX_CLIENTS];
    int gameIndex = 0;
-
+   srand(time(NULL));
    fd_set rdfs;
 
    while (1)
@@ -158,6 +158,25 @@ static void app(void)
                   else if (strncmp(buffer, DECLINE_INVITE,2)==0){
                      decline_invite(clients, client, actual);
                   }
+                  else if (strncmp(buffer, PLAY, 2) == 0)
+                  {
+                     if (client.isInGame == 1)
+                     {
+                        int index_game = get_game_index_by_name(games, client.name, gameIndex);
+                        if ( (games[index_game].turn == 0 && strcmp(games[index_game].j1, client.name) == 0) || (games[index_game].turn == 1 && strcmp(games[index_game].j2, client.name) == 0)){
+                           jouer_coup(&games[index_game], games[index_game].turn, buffer[2] - '0');
+                           games[index_game].turn = 1 - games[index_game].turn;
+                           send_game(&games[index_game], clients, actual);
+                        }
+                        else{
+                           send_message_to_client(client, "Ce n'est pas votre tour");
+                        }
+                     }
+                     else{
+                        send_message_to_client(client, "Impossible de jouer sans partie en cours");
+                     }
+                  }
+                     
                }
                break;
             }
@@ -234,7 +253,7 @@ static void defy_player(Client *clients, Client defier, int actual, const char *
       if (!strcmp(playerDefied, clients[i].name) && clients[i].invite[0] == 0 && defier.invite[0] == 0 && strcmp(defier.name, playerDefied))
       {
          strcpy(clients[i].invite, defier.name);
-         int index = get_index_by_name(clients, defier.name, actual);
+         int index = get_player_index_by_name(clients, defier.name, actual);
          clients[index].invite[0] = 1;
          strcpy(&clients[index].invite[1], playerDefied);
          strncpy(message, "Vous avez été défié par ", BUF_SIZE - 1);
@@ -260,7 +279,7 @@ static void decline_invite(Client *clients, Client client, int actual){
    if (client.invite[0] == 1)
    {
       send_message_to_client(client, "Annulation de la demande");
-      int index = get_index_by_name(clients, &client.invite[1], actual);
+      int index = get_player_index_by_name(clients, &client.invite[1], actual);
       clients[index].invite[0] = 0;
       client.invite[0] = 0;
       send_message_to_client(clients[index], "Demande annulée");
@@ -276,7 +295,7 @@ static void decline_invite(Client *clients, Client client, int actual){
       if (!strcmp(client.invite, clients[i].name))
       {
          send_message_to_client(clients[i], "Demande refusée");
-         int index = get_index_by_name(clients, client.name, actual);
+         int index = get_player_index_by_name(clients, client.name, actual);
          clients[index].invite[0] = 0;
          clients[i].invite[0] = 0;
          return;
@@ -300,7 +319,7 @@ static void accept_invite(Client *clients, Client client, int actual){
    {
       if (!strcmp(client.invite, clients[i].name))
       {
-         int index = get_index_by_name(clients, client.name, actual);
+         int index = get_player_index_by_name(clients, client.name, actual);
          clients[index].isInGame = 1;
          clients[i].isInGame = 1;
          clients[index].invite[0] = 2;
@@ -313,16 +332,25 @@ static void accept_invite(Client *clients, Client client, int actual){
 static void launch_game(Client *clients, Client client, int actual, Awale *games, int *gameIndex)
 {
    Awale jeu;
-   jeu.turn = rand() % 2;
-   Client opponent = clients[get_index_by_name(clients, client.invite, actual)];
-   strncpy(jeu.j1, client.name, 50);
-   strncpy(jeu.j2, opponent.name , 50);
+   Client opponent = clients[get_player_index_by_name(clients, client.invite, actual)];
+   int who_start = rand() % 2;
+   printf("who start : %d\n", who_start);
+   if (who_start == 0){
+      strncpy(jeu.j1, client.name, 50);
+      strncpy(jeu.j2, opponent.name , 50);
+   }
+   else{
+      strncpy(jeu.j2, client.name, 50);
+      strncpy(jeu.j1, opponent.name , 50);
+   }
+   printf("j1 : %s, j2 : %s\n", jeu.j1, jeu.j2);
+   jeu.turn = 0;
    initialiser_jeu(&jeu);
    games[*gameIndex] = jeu;
    (*gameIndex)++;
    send_message_to_client(client, "Bienvenue dans le jeu d'Awalé !\n");
    send_message_to_client(opponent, "Demande acceptée\nBienvenue dans le jeu d'Awalé !\n");
-   usleep(100000); //wait to be sure the messages are separated
+   usleep(100000); //wait 0.1s to be sure the messages are separated
    send_game(&jeu, clients, actual);
 }
 
@@ -332,10 +360,22 @@ static void send_game(Awale *game, Client* clients, int actual)
    memset(message, 0, BUF_SIZE);
    strncpy(message, GAME, BUF_SIZE - 1);
    serialize_awale(game, message + 2, BUF_SIZE - 3);
-   int index1 = get_index_by_name(clients, game->j1, actual);
-   int index2 = get_index_by_name(clients, game->j2, actual);
+   int index1 = get_player_index_by_name(clients, game->j1, actual);
+   int index2 = get_player_index_by_name(clients, game->j2, actual);
    write_client(clients[index1].sock, message);
    write_client(clients[index2].sock, message);
+}
+
+static int get_game_index_by_name(Awale *games, char *name, int actual)
+{
+   int i = 0;
+   for (i = 0; i < actual; i++)
+   {
+      if (!strcmp(name, games[i].j1) || !strcmp(name, games[i].j2))
+      {
+         return i;
+      }
+   }
 }
 
 static void send_clients_list_on_demand(Client *clients, Client client, int actual)
@@ -439,7 +479,7 @@ static void write_client(SOCKET sock, const char *buffer)
    }
 }
 
-static int get_index_by_name(Client *clients, char *name, int actual)
+static int get_player_index_by_name(Client *clients, char *name, int actual)
 {
    int i = 0;
    for (i = 0; i < actual; i++)

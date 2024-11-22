@@ -33,7 +33,7 @@ static void app(const char *address, const char *name)
    char buffer[BUF_SIZE];
 
    fd_set rdfs;
-
+   Awale jeu;
    int connected = 1;
 
    /* send our name */
@@ -102,7 +102,17 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_DECLINE_INVITE), strlen(buffer) - strlen(CMD_DECLINE_INVITE) + 1);
             write_server(sock, serialize_message(DECLINE_INVITE, ""));
          }
-
+         else if (!strncmp(buffer, CMD_PLAY, strlen(CMD_PLAY))){
+            memmove(buffer, buffer + strlen(CMD_PLAY) + 1, strlen(buffer) - strlen(CMD_PLAY));
+            if (coup_valide(&jeu, jeu.turn, *buffer - '0'))
+            {
+                  write_server(sock, serialize_message(PLAY, buffer));
+            }
+            else
+            {
+                  printf("%sCoup invalide, essayez encore.%s\n",RED, COLOR_RESET);
+            }
+         }
          else
             printf("%sCommande non reconnue.%s\n", RED, COLOR_RESET);
       }
@@ -129,10 +139,10 @@ static void app(const char *address, const char *name)
          }
          else if (!strncmp(buffer, GAME, 2))
          {
-            Awale jeu;
+            
             deserialize_awale(&jeu, buffer + 2);
             afficher_plateau(&jeu);
-            if ((strcmp(jeu.j1, name) && jeu.turn==0) || (strcmp(jeu.j2, name) && jeu.turn==1)) 
+            if ((strcmp(jeu.j1, name)==0 && jeu.turn==0) || (strcmp(jeu.j2, name)==0 && jeu.turn==1)) 
                printf("%s%s, choisissez une case (0 à 5) %s\n", MAGENTA, name, COLOR_RESET);
          }
          else if (!strncmp(buffer, NAME_USED,2))
