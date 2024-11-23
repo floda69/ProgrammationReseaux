@@ -117,6 +117,9 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_SPECTATE) + 1, strlen(buffer) - strlen(CMD_SPECTATE));
             write_server(sock, serialize_message(SPECTATE, buffer));
          }
+         else if (!strncmp(buffer, CMD_GAME_LIST, strlen(CMD_GAME_LIST))){
+            write_server(sock, serialize_message(GAME_LIST, ""));
+         }
          else
             printf("%sCommande non reconnue.%s\n", RED, COLOR_RESET);
       }
@@ -153,6 +156,10 @@ static void app(const char *address, const char *name)
          {
             printf("Nom déjà utilisé, veuillez en choisir un autre\n");
             exit(0);
+         }
+         else if (!strncmp(buffer, GAME_LIST, 2))
+         {
+            puts(buffer + 2);
          }
       }
    }

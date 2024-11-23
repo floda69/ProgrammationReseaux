@@ -167,7 +167,10 @@ static void app(void)
                   {
                      spectate(buffer + 2, games, gameIndex, client);
                   }
-                     
+                  else if (strncmp(buffer, GAME_LIST, 2) == 0)
+                  {
+                     send_games_list_on_demand(games, gameIndex, client);
+                  }  
                }
                break;
             }
@@ -442,12 +445,18 @@ static void spectate(const char *buffer, Awale *games, int gameIndex, Client cli
       send_message_to_client(client, "ce joueur n'est pas en partie");
       return;
    }
+   if (!strcmp(games[game].j1, client.name) || !strcmp(games[game].j2, client.name)){
+      char message[BUF_SIZE];
+      strncpy(message, "Vous ne pouvez pas regarder votre partie ", BUF_SIZE - 1);
+      send_message_to_client(client, message);
+      return;
+   }
    for (int i = 0; i < MAX_CLIENTS; i++){
       if (games[game].spectate[i] == client.name){
-         send_message_to_client(client, "vous etes déjà en spectateur de ce joueur");
+         send_message_to_client(client, "Vous etes déjà en spectateur de ce joueur");
          return;
       }
-      if (games[game].spectate[i][0] == 0){
+      else if (games[game].spectate[i][0] == 0){
          char message[BUF_SIZE];
          strncpy(message, "Vous êtes maintenant en spectateur de ", BUF_SIZE - 1);
          strncat(message, MAGENTA, BUF_SIZE - strlen(message) - 1);
@@ -488,6 +497,30 @@ static void send_clients_list_on_demand(Client *clients, Client client, int actu
    strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
 
    write_client(client.sock, message);
+}
+
+static void send_games_list_on_demand(Awale *games, int gameIndex, Client client)
+{
+   char message[BUF_SIZE];
+   message[0] = 0;
+   strncpy(message, GAME_LIST, BUF_SIZE - 1);
+   strncat(message, BLUE, BUF_SIZE - strlen(message) - 1);
+   if (gameIndex == 0){
+      strncat(message, "Aucune partie en cours\n", BUF_SIZE - strlen(message) - 1);
+   }
+   else{
+      strncat(message, "Liste des parties en cours: \n", sizeof message - strlen(message) - 1);
+      for (int i = 0; i < gameIndex; i++)
+      {
+         strncat(message, games[i].j1, BUF_SIZE - strlen(message) - 1);
+         strncat(message, " vs ", BUF_SIZE - strlen(message) - 1);
+         strncat(message, games[i].j2, BUF_SIZE - strlen(message) - 1);
+         strncat(message, "\n", BUF_SIZE - strlen(message) - 1);
+      }
+   }
+   strncat(message, COLOR_RESET, BUF_SIZE - strlen(message) - 1);
+   write_client(client.sock, message);
+   return;
 }
 
 static void switch_client_chat_mode(Client *client)

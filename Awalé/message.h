@@ -18,6 +18,7 @@
 #define GAME "08"
 #define PLAY "09"
 #define SPECTATE "10"
+#define GAME_LIST "11"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -29,6 +30,7 @@
 #define CMD_DECLINE_INVITE "/decline"
 #define CMD_PLAY "/play"
 #define CMD_SPECTATE "/spectate"
+#define CMD_GAME_LIST "/games"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 
