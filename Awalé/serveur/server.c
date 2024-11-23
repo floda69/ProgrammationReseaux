@@ -380,7 +380,7 @@ static void play(int case_choisie, Client *clients, Client client, int actual, A
          send_game(&games[index_game], clients, actual);
          if (fin_de_jeu(&games[index_game])){
             usleep(100000); //wait 0.1s to be sure the messages are separated
-            end_game(&games[index_game], clients, actual);
+            end_game(games, gameIndex, &games[index_game], index_game, clients, actual);
          }
       }
       else{
@@ -397,9 +397,8 @@ static void end_game(Awale* games, int gameIndex, Awale *game, int index_game, C
    int index2 = get_player_index_by_name(clients, game->j2, actual);
    char message[BUF_SIZE];
    message[0] = 0;
-   strncpy(message, END_GAME, BUF_SIZE - 1);
    if (game->score[0] > game->score[1]){
-      strncat(message, clients[index1].name , BUF_SIZE - strlen(message) - 1);
+      strncpy(message, clients[index1].name , BUF_SIZE - strlen(message) - 1);
       strncat(message, " a gagné !\n", BUF_SIZE - strlen(message) - 1);
       send_message_to_client(clients[index1], message);
       send_message_to_client(clients[index2], message);
