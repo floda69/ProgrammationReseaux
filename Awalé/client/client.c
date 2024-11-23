@@ -113,6 +113,10 @@ static void app(const char *address, const char *name)
                   printf("%sCoup invalide, essayez encore.%s\n",RED, COLOR_RESET);
             }
          }
+         else if (!strncmp(buffer, CMD_SPECTATE, strlen(CMD_SPECTATE))){
+            memmove(buffer, buffer + strlen(CMD_SPECTATE) + 1, strlen(buffer) - strlen(CMD_SPECTATE));
+            write_server(sock, serialize_message(SPECTATE, buffer));
+         }
          else
             printf("%sCommande non reconnue.%s\n", RED, COLOR_RESET);
       }

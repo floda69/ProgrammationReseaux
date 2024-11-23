@@ -5,6 +5,8 @@
 #define GRAINES_PAR_CASE 4
 #define J1 0
 #define J2 1
+#define MAX_CLIENTS     100
+#define NAME_SIZE    50
 
 #include <stdbool.h>
 #include <string.h>
@@ -15,6 +17,7 @@ typedef struct {
     char j1[50];
     char j2[50];
     int turn;
+    char spectate[MAX_CLIENTS][NAME_SIZE];
 } Awale;
 
 // Initialisation du jeu

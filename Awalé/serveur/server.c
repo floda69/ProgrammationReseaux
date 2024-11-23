@@ -163,6 +163,10 @@ static void app(void)
                      play(buffer[2] - '0', clients, client, actual, games, &gameIndex);
                      
                   }
+                  else if (strncmp(buffer, SPECTATE, 2) == 0)
+                  {
+                     spectate(buffer + 2, games, gameIndex, client);
+                  }
                      
                }
                break;
@@ -336,6 +340,9 @@ static void launch_game(Client *clients, Client client, int actual, Awale *games
       strncpy(jeu.j1, opponent.name , 50);
    }
    jeu.turn = 0;
+   for (int i=0; i<MAX_CLIENTS; i++){
+      jeu.spectate[i][0] = 0;
+   }
    initialiser_jeu(&jeu);
    games[*gameIndex] = jeu;
    (*gameIndex)++;
@@ -355,25 +362,32 @@ static void send_game(Awale *game, Client* clients, int actual)
    int index2 = get_player_index_by_name(clients, game->j2, actual);
    write_client(clients[index1].sock, message);
    write_client(clients[index2].sock, message);
+   for (int i = 0; i < actual; i++) {
+      if (game->spectate[i][0] != 0){
+         int index_Spectate = get_player_index_by_name(clients, game->spectate[i], actual);
+         write_client(clients[index_Spectate].sock, message);
+      }
+   }
 }
 
-static int get_game_index_by_name(Awale *games, char *name, int actual)
+static int get_game_index_by_name(Awale *games, char *name, int gameIndex)
 {
    int i = 0;
-   for (i = 0; i < actual; i++)
+   for (i = 0; i < gameIndex; i++)
    {
       if (!strcmp(name, games[i].j1) || !strcmp(name, games[i].j2))
       {
          return i;
       }
    }
+   return -1;
 }
 
 static void play(int case_choisie, Client *clients, Client client, int actual, Awale *games, int *gameIndex)
 {
    if (client.isInGame == 1)
    {
-      int index_game = get_game_index_by_name(games, client.name, gameIndex);
+      int index_game = get_game_index_by_name(games, client.name, *gameIndex);
       if ( (games[index_game].turn == 0 && strcmp(games[index_game].j1, client.name) == 0) || (games[index_game].turn == 1 && strcmp(games[index_game].j2, client.name) == 0)){
          jouer_coup(&games[index_game], games[index_game].turn, case_choisie);
          games[index_game].turn = 1 - games[index_game].turn;
@@ -404,7 +418,7 @@ static void end_game(Awale* games, int gameIndex, Awale *game, int index_game, C
       send_message_to_client(clients[index2], message);
    }
    else if (game->score[0] < game->score[1]){
-       strncat(message, clients[index2].name , BUF_SIZE - strlen(message) - 1);
+      strncat(message, clients[index2].name , BUF_SIZE - strlen(message) - 1);
       strncat(message, " a gagné !\n", BUF_SIZE - strlen(message) - 1);
       send_message_to_client(clients[index1], message);
       send_message_to_client(clients[index2], message);
@@ -419,6 +433,29 @@ static void end_game(Awale* games, int gameIndex, Awale *game, int index_game, C
    clients[index2].invite[0] = 0;
    for (int i = index_game; i <= gameIndex - 1; i++){
       games[i] = games[i+1];
+   }
+}
+
+static void spectate(const char *buffer, Awale *games, int gameIndex, Client client){
+   int game = get_game_index_by_name(games, buffer, gameIndex);
+   if (game == -1){
+      send_message_to_client(client, "ce joueur n'est pas en partie");
+      return;
+   }
+   for (int i = 0; i < MAX_CLIENTS; i++){
+      if (games[game].spectate[i] == client.name){
+         send_message_to_client(client, "vous etes déjà en spectateur de ce joueur");
+         return;
+      }
+      if (games[game].spectate[i][0] == 0){
+         char message[BUF_SIZE];
+         strncpy(message, "Vous êtes maintenant en spectateur de ", BUF_SIZE - 1);
+         strncat(message, MAGENTA, BUF_SIZE - strlen(message) - 1);
+         strncat(message, buffer, BUF_SIZE - strlen(message) - 1);
+         strncpy(games[game].spectate[i], client.name, 50);
+         send_message_to_client(client, message);
+         return;
+      }
    }
 }
 
