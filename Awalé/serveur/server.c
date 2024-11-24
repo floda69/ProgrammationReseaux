@@ -108,8 +108,9 @@ static void app(void)
 
          FD_SET(csock, &rdfs);
 
-         Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0, .bio = 0};
+         Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0};
          strncpy(c.name, buffer, NAME_SIZE - 1);
+         get_bio_from_db(c.name, c.bio);
          add_name_to_db(c.name);
          clients[actual] = c;
          actual++;
@@ -145,7 +146,8 @@ static void app(void)
                   closesocket(clients[i].sock);
                   remove_client(clients, i, &actual);
                   strncpy(buffer, client.name, BUF_SIZE - 1);
-                  if (wait) usleep(1000); // wait 0.001s to be sure the messages are separated
+                  if (wait)
+                     usleep(1000); // wait 0.001s to be sure the messages are separated
                   strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
                   send_message_to_all_clients(clients, client, actual, buffer, 1);
                }
@@ -164,7 +166,7 @@ static void app(void)
                   {
                      send_message_to_all_clients(clients, client, actual, buffer + 3, 0);
                   }
-                  else if (strncmp(buffer, PRIVATE_MSG, 2)==0)
+                  else if (strncmp(buffer, PRIVATE_MSG, 2) == 0)
                   {
                      send_private_message(clients, client, actual, buffer + 2);
                   }
@@ -207,11 +209,11 @@ static void app(void)
                   }
                   else if (strncmp(buffer, GET_BIO, 2) == 0)
                   {
-                     send_bio_on_demand(clients,client,actual,buffer+2);
+                     send_bio_on_demand(clients, client, actual, buffer + 2);
                   }
                   else if (strncmp(buffer, SET_BIO, 2) == 0)
                   {
-                     if(buffer[2] == 0)
+                     if (buffer[2] == 0)
                      {
                         send_message_to_client(client, "Erreur : bio vide");
                      }
@@ -283,16 +285,18 @@ static void send_private_message(Client *clients, Client sender, int actual, con
    int i = 0;
    char message[BUF_SIZE];
    message[0] = 0;
-   char receiver[NAME_SIZE]; 
+   char receiver[NAME_SIZE];
    const char *msg_start;
    const char *space_pos = strchr(buffer, ' ');
-    if (space_pos != NULL) {
+   if (space_pos != NULL)
+   {
       size_t name_length = space_pos - buffer;
       strncpy(receiver, buffer, name_length);
       receiver[name_length] = '\0';
       msg_start = space_pos + 1; // Message starts after the space
       int index = get_player_index_by_name(clients, receiver, actual);
-      if (index != -1) {
+      if (index != -1)
+      {
          strncpy(message, PRIVATE_MSG, BUF_SIZE - 1);
          strncat(message, CYAN, sizeof message - strlen(message) - 1);
          strncat(message, sender.name, sizeof message - strlen(message) - 1);
@@ -300,9 +304,9 @@ static void send_private_message(Client *clients, Client sender, int actual, con
          strncat(message, msg_start, sizeof message - strlen(message) - 1);
          strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
          write_client(clients[index].sock, message);
-        return;
+         return;
       }
-   } 
+   }
    strncpy(message, PRIVATE_MSG, BUF_SIZE - 1);
    strncat(message, RED, sizeof message - strlen(message) - 1);
    strncat(message, "Erreur : Impossible d'envoyer le message", sizeof message - strlen(message) - 1);
@@ -598,10 +602,9 @@ static void spectate(const char *buffer, Awale *games, int gameIndex, Client cli
    }
 }
 
-static void send_bio_on_demand(Client* clients, Client client, int actual, const char *buffer)
+static void send_bio_on_demand(Client *clients, Client client, int actual, const char *buffer)
 {
    char message[BUF_SIZE];
-   char bio[BIO_SIZE] = "Biographie indisponible";
    message[0] = 0;
    int i = get_player_index_by_name(clients, buffer, actual);
    if (i == -1)
@@ -610,11 +613,17 @@ static void send_bio_on_demand(Client* clients, Client client, int actual, const
       send_message_to_client(client, message);
       return;
    }
+   else if (clients[i].bio[0] == 0)
+   {
+      strncpy(message, "Aucune bio disponible pour ce joueur", BUF_SIZE - 1);
+      send_message_to_client(client, message);
+      return;
+   }
 
-   get_bio_from_db(clients[i].name, bio);
-   
+   get_bio_from_db(clients[i].name, clients[i].bio);
+
    strncpy(message, MAGENTA, BUF_SIZE - 1);
-   strncat(message, bio, BUF_SIZE - strlen(message) - 1);
+   strncat(message, clients[i].bio, BUF_SIZE - strlen(message) - 1);
    send_message_to_client(client, message);
    return;
 }
