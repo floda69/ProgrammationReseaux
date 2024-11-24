@@ -133,6 +133,14 @@ static void app(const char *address, const char *name)
          else if (!strncmp(buffer, CMD_RESIGN, strlen(CMD_RESIGN))){
             write_server(sock, serialize_message(RESIGN, ""));
          }
+         else if (!strncmp(buffer, CMD_BIO, strlen(CMD_BIO))){
+            memmove(buffer, buffer + strlen(CMD_BIO) + 1, strlen(buffer) - strlen(CMD_BIO));
+            write_server(sock, serialize_message(GET_BIO, buffer));
+         }
+         else if (!strncmp(buffer, CMD_BIO_SET, strlen(CMD_BIO_SET))){
+            memmove(buffer, buffer + strlen(CMD_BIO_SET) + 1, strlen(buffer) - strlen(CMD_BIO_SET));
+            write_server(sock, serialize_message(SET_BIO, buffer));
+         }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);
       }

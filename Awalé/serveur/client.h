@@ -11,7 +11,7 @@ typedef struct
    int isInGame;
    int isInGlobalChatMode;
    char invite[NAME_SIZE+1];
-   char bio[200];
+   char bio[BIO_SIZE];
 }Client;
 
 #endif /* guard */

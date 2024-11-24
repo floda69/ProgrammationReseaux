@@ -108,7 +108,7 @@ static void app(void)
 
          FD_SET(csock, &rdfs);
 
-         Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0};
+         Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0, .bio = 0};
          strncpy(c.name, buffer, NAME_SIZE - 1);
          add_name_to_db(c.name);
          clients[actual] = c;
@@ -203,6 +203,22 @@ static void app(void)
                      else
                      {
                         send_message_to_client(client, "Impossible d'abandonner sans partie en cours");
+                     }
+                  }
+                  else if (strncmp(buffer, GET_BIO, 2) == 0)
+                  {
+                     send_bio_on_demand(clients,client,actual,buffer+2);
+                  }
+                  else if (strncmp(buffer, SET_BIO, 2) == 0)
+                  {
+                     if(buffer[2] == 0)
+                     {
+                        send_message_to_client(client, "Erreur : bio vide");
+                     }
+                     else
+                     {
+                        strncpy(clients[i].bio, buffer + 2, BIO_SIZE - 1);
+                        send_message_to_client(client, "Bio mise à jour");
                      }
                   }
                }
@@ -579,6 +595,29 @@ static void spectate(const char *buffer, Awale *games, int gameIndex, Client cli
          return;
       }
    }
+}
+
+static void send_bio_on_demand(Client* clients, Client client, int actual, const char *buffer)
+{
+   char message[BUF_SIZE];
+   message[0] = 0;
+   int i = get_player_index_by_name(clients, buffer, actual);
+   if (i == -1)
+   {
+      strncpy(message, "Joueur non trouvé", BUF_SIZE - 1);
+      send_message_to_client(client, message);
+      return;
+   }
+   else if (clients[i].bio[0] == 0)
+   {
+      strncpy(message, "Aucune bio disponible pour ce joueur", BUF_SIZE - 1);
+      send_message_to_client(client, message);
+      return;
+   }
+   strncpy(message, MAGENTA, BUF_SIZE - 1);
+   strncat(message, clients[i].bio, BUF_SIZE - strlen(message) - 1);
+   send_message_to_client(client, message);
+   return;
 }
 
 static void send_clients_list_on_demand(Client *clients, Client client, int actual)

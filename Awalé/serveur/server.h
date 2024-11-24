@@ -33,6 +33,7 @@ typedef struct in_addr IN_ADDR;
 
 #define BUF_SIZE    1024
 #define NAME_SIZE    50
+#define BIO_SIZE    200
 
 #include "client.h"
 #include "../message.h"
@@ -66,5 +67,6 @@ static void spectate(const char *buffer, Awale *games, int actual, Client client
 static void send_games_list_on_demand(Awale *games, int gameIndex, Client client);
 static void send_private_message(Client *clients, Client sender, int actual, const char *buffer);
 static void resign(Awale *games, int gameIndex, Awale *game, int index_game, Client *clients, int actual, Client client);
+static void send_bio_on_demand(Client* clients, Client client, int actual, const char *buffer);
 
 #endif /* guard */

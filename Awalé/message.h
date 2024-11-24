@@ -21,6 +21,8 @@
 #define GAME_LIST "11"
 #define PRIVATE_MSG "12"
 #define RESIGN "13"
+#define GET_BIO "14"
+#define SET_BIO "15"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -35,6 +37,8 @@
 #define CMD_GAME_LIST "/games"
 #define CMD_Private "/private"
 #define CMD_RESIGN "/resign"
+#define CMD_BIO "/bio"
+#define CMD_BIO_SET "/setbio"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 
