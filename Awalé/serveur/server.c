@@ -224,10 +224,12 @@ static void app(void)
                         send_message_to_client(client, "Bio mise à jour");
                      }
                   }
-                  else if (strncmp(buffer, ADD_FRIEND, 2) == 0){
+                  else if (strncmp(buffer, ADD_FRIEND, 2) == 0)
+                  {
                      add_friend_to_db(clients[i].name, buffer + 2);
                   }
-                  else if (strncmp(buffer, SWITCH_PRIVACY, 2) == 0){
+                  else if (strncmp(buffer, SWITCH_PRIVACY, 2) == 0)
+                  {
                      switch_privacy_in_db(clients[i].name);
                   }
                }
@@ -579,6 +581,11 @@ static void spectate(const char *buffer, Awale *games, int gameIndex, Client cli
    if (game == -1)
    {
       send_message_to_client(client, "ce joueur n'est pas en partie");
+      return;
+   }
+   if (is_in_private_mode(buffer))
+   {
+      send_message_to_client(client, "ce joueur est en mode privé");
       return;
    }
    if (!strcmp(games[game].j1, client.name) || !strcmp(games[game].j2, client.name))

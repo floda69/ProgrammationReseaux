@@ -329,3 +329,33 @@ int switch_privacy_in_db(const char *name)
 
    return 1;
 }
+
+int is_in_private_mode(const char *name){
+   int return_val;
+
+   char *json_clients = read_file(CLIENTS_FILE);
+   if (json_clients == NULL)
+   {
+      return 0;
+   }
+   // parser string vers objet JSON
+   cJSON *json = cJSON_Parse(json_clients);
+   free(json_clients);
+   if (json == NULL)
+   {
+      perror("Erreur lors du parsing du JSON\n");
+      return 0;
+   }
+
+   // ajouter nom à la liste des clients SSI il n'y est pas
+   cJSON *private_clients = cJSON_GetObjectItem(json, "privates");
+
+   if (is_string_in_json_array(private_clients, name)!=-1)
+      return_val = 1;
+   else
+      return_val = 0;
+   //nettoyage
+   cJSON_Delete(json);
+
+   return return_val;
+}
