@@ -8,7 +8,7 @@ SERVEUR_DIR = serveur
 
 # Fichiers sources
 CLIENT_SOURCES = $(wildcard $(CLIENT_DIR)/*.c) message.c jeu.c
-SERVEUR_SOURCES = $(wildcard $(SERVEUR_DIR)/*.c) message.c jeu.c
+SERVEUR_SOURCES = $(wildcard $(SERVEUR_DIR)/*.c) message.c jeu.c cJSON.c persistance.c
 
 # Noms des exécutables
 CLIENT_EXEC = $(CLIENT_DIR)/client_exec
