@@ -110,7 +110,7 @@ static void app(void)
          clients[actual] = c;
          actual++;
 
-         strncat(buffer, " just connected !\n", BUF_SIZE - strlen(buffer) - 1);
+         strncat(buffer, " Vient de se connecter !\n", BUF_SIZE - strlen(buffer) - 1);
          send_message_to_all_clients(clients, c, actual, buffer, 1);
       }
       else
@@ -152,8 +152,8 @@ static void app(void)
                      defy_player(clients, client, actual, buffer + 2);
                   }
                   else if (strncmp(buffer, ACCEPT_INVITE,2)==0){
-                     accept_invite(clients, client, actual);
-                     launch_game(clients, client, actual, games, &gameIndex);
+                     if (accept_invite(clients, client, actual))
+                        launch_game(clients, client, actual, games, &gameIndex);
                   }
                   else if (strncmp(buffer, DECLINE_INVITE,2)==0){
                      decline_invite(clients, client, actual);
@@ -298,22 +298,22 @@ static void decline_invite(Client *clients, Client client, int actual){
    }
 }
 
-static void accept_invite(Client *clients, Client client, int actual){
+static int accept_invite(Client *clients, Client client, int actual){
    int i = 0;
    if (client.invite[0] == 0)
    {
       send_message_to_client(client, "Pas de demande en cours");
-      return;
+      return 0;
    }
    if (client.invite[0] == 1)
    {
       send_message_to_client(client, "Attendez la réponse du joueur défié");
-      return;
+      return 0;
    }
    if (client.invite[0] == 2)
    {
       send_message_to_client(client, "Impossible pendant une partie");
-      return;
+      return 0;
    }
    for (i = 0; i < actual; i++)
    {
@@ -324,7 +324,7 @@ static void accept_invite(Client *clients, Client client, int actual){
          clients[i].isInGame = 1;
          clients[index].invite[0] = 2;
          clients[i].invite[0] = 2;
-         break;
+         return 1;
       }
    }
 }
@@ -604,38 +604,6 @@ static int get_player_index_by_name(Client *clients, char *name, int actual)
       }
    }
 }
-
-
-// static void search_opponent(Client *clients, Client client, int actual, const char *buffer)
-// {
-//    int i = 0;
-//    char message[BUF_SIZE];
-//    message[0] = '\n';
-//    for (i = 0; i < actual; i++)
-//    {
-//       if (!strcmp(buffer, clients[i].name) && clients[i].isInGame == 0)
-//       {
-//          strncpy(message, clients[i].name, BUF_SIZE - 1);
-//          strncpy(clients[i].invite, client.name, 50);
-//          clients[i].isInGame = 1;
-//          client.isInGame = 1;
-//          break;
-//       }
-//    }
-//    write_client(client.sock, message);
-// }
-
-// static void check_invite(Client client)
-// {
-//    char message[BUF_SIZE];
-//    message[0] = '\n';
-//    if (client.invite[0] != '\0')
-//    {
-//       strncpy(message, client.invite, BUF_SIZE - 1);
-//       client.invite[0] = '\0';
-//    }
-//    write_client(client.sock, message);
-// }
 
 int main(int argc, char **argv)
 {

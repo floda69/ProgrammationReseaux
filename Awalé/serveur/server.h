@@ -55,7 +55,7 @@ static void remove_client(Client *clients, int to_remove, int *actual);
 static void clear_clients(Client *clients, int actual);
 static int get_player_index_by_name(Client *clients, char *name, int actual);
 static void decline_invite(Client *clients, Client client, int actual);
-static void accept_invite(Client *clients, Client client, int actual);
+static int accept_invite(Client *clients, Client client, int actual);
 static void launch_game(Client *clients, Client client, int actual, Awale *games, int *gameIndex);
 static void send_game(Awale *game, Client* clients, int actual);
 static int get_game_index_by_name(Awale *games, char *name, int actual);
