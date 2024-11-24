@@ -45,6 +45,7 @@ static void app(const char *address, const char *name)
       /* add STDIN_FILENO */
       FD_SET(STDIN_FILENO, &rdfs);
 
+
       /* add the socket */
       FD_SET(sock, &rdfs);
 

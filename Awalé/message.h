@@ -32,6 +32,7 @@
 #define CMD_SPECTATE "/spectate"
 #define CMD_GAME_LIST "/games"
 
+
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 
 // colors for format
