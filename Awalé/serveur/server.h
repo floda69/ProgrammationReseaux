@@ -33,7 +33,6 @@ typedef struct in_addr IN_ADDR;
 
 #define BUF_SIZE    1024
 #define NAME_SIZE    50
-#define BIO_SIZE    200
 
 #include "client.h"
 #include "../message.h"

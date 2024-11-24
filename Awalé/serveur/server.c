@@ -217,6 +217,7 @@ static void app(void)
                      }
                      else
                      {
+                        change_bio_in_db(clients[i].name, buffer + 2);
                         strncpy(clients[i].bio, buffer + 2, BIO_SIZE - 1);
                         send_message_to_client(client, "Bio mise à jour");
                      }
@@ -600,6 +601,7 @@ static void spectate(const char *buffer, Awale *games, int gameIndex, Client cli
 static void send_bio_on_demand(Client* clients, Client client, int actual, const char *buffer)
 {
    char message[BUF_SIZE];
+   char bio[BIO_SIZE] = "Biographie indisponible";
    message[0] = 0;
    int i = get_player_index_by_name(clients, buffer, actual);
    if (i == -1)
@@ -608,14 +610,11 @@ static void send_bio_on_demand(Client* clients, Client client, int actual, const
       send_message_to_client(client, message);
       return;
    }
-   else if (clients[i].bio[0] == 0)
-   {
-      strncpy(message, "Aucune bio disponible pour ce joueur", BUF_SIZE - 1);
-      send_message_to_client(client, message);
-      return;
-   }
+
+   get_bio_from_db(clients[i].name, bio);
+   
    strncpy(message, MAGENTA, BUF_SIZE - 1);
-   strncat(message, clients[i].bio, BUF_SIZE - strlen(message) - 1);
+   strncat(message, bio, BUF_SIZE - strlen(message) - 1);
    send_message_to_client(client, message);
    return;
 }

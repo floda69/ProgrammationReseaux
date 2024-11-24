@@ -3,6 +3,7 @@
 
 #include "server.h"
 #include "../message.h"
+#include "../persistance.h"
 
 typedef struct
 {

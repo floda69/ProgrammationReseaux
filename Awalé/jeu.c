@@ -135,7 +135,7 @@ bool fin_de_jeu(Awale *jeu)
             total[i] += jeu->plateau[i][j];
         }
     }
-    return (total[0] == 0 || total[1] == 0);
+    return (total[0] == 0 || total[1] == 0 || jeu->score[0] == 25 || jeu->score[1] == 25);
 }
 
 // Fonction principale
