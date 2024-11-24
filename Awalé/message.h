@@ -23,6 +23,8 @@
 #define RESIGN "13"
 #define GET_BIO "14"
 #define SET_BIO "15"
+#define ADD_FRIEND "16"
+#define SWITCH_PRIVACY "17"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -35,10 +37,12 @@
 #define CMD_PLAY "/play"
 #define CMD_SPECTATE "/spectate"
 #define CMD_GAME_LIST "/games"
-#define CMD_Private "/private"
+#define CMD_PRIVATE "/private"
 #define CMD_RESIGN "/resign"
 #define CMD_BIO "/bio"
 #define CMD_BIO_SET "/setbio"
+#define CMD_ADD_FRIEND "/mkfriend"
+#define CMD_SWITCH_PRIVACY "/switch privacy"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

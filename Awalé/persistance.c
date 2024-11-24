@@ -81,6 +81,27 @@ int delete_bio_from_db(cJSON *array, const char *name)
    return 0;
 }
 
+int has_friends(const char *name, cJSON *array)
+{
+   // pas besoin de chercher
+   if (!cJSON_IsArray(array) || name == NULL)
+   {
+      return 0;
+   }
+
+   cJSON *item = NULL;
+   int position = 0;
+   cJSON_ArrayForEach(item, array)
+   {
+      cJSON *name_item = cJSON_GetObjectItem(item, "name");
+      if (cJSON_IsString(name_item) && strcmp(name_item->valuestring, name) == 0)
+      {
+         return position;
+      }
+   }
+   return -1;
+}
+
 int add_name_to_db(const char *name)
 {
    char *json_clients = read_file(CLIENTS_FILE);
@@ -199,8 +220,67 @@ char *get_bio_from_db(const char *name, char *bio_buffer)
          strncpy(bio_buffer, cJSON_GetObjectItem(item, "bio")->valuestring, BIO_SIZE - 1);
       }
    }
-   
+
    cJSON_Delete(json);
 
    return bio_buffer;
+}
+
+int add_friend_to_db(const char *name, const char *friend)
+{
+   char *json_clients = read_file(CLIENTS_FILE);
+   if (json_clients == NULL)
+   {
+      return 0;
+   }
+   // parser string vers objet JSON
+   cJSON *json = cJSON_Parse(json_clients);
+   free(json_clients);
+   if (json == NULL)
+   {
+      perror("Erreur lors du parsing du JSON\n");
+      return 0;
+   }
+
+   cJSON *friends = cJSON_GetObjectItem(json, "friends");
+
+   // trouver position du nom dan la liste si présent
+   int index = has_friends(name, friends);
+
+   if (index != -1)
+   {
+      cJSON *requester = cJSON_GetArrayItem(friends, index);
+      cJSON *requester_friends = cJSON_GetObjectItem(requester, "my_friends");
+      if (!is_string_in_json_array(requester_friends, friend))
+         cJSON_AddItemToArray(requester_friends, cJSON_CreateString(friend));
+   }
+   else
+   {
+      // créer objet friends
+      cJSON *friend_entry = cJSON_CreateObject();
+      cJSON_AddStringToObject(friend_entry, "name", name);
+      cJSON *friend_list = cJSON_CreateArray();
+      cJSON_AddItemToArray(friend_list, cJSON_CreateString(friend));
+      cJSON_AddItemToObject(friend_entry, "my_friends", friend_list);
+
+      cJSON_AddItemToArray(friends, friend_entry);
+   }
+
+   // convertir le JSON mis à jour en chaîne
+   char *updated_json = cJSON_Print(json);
+
+   // écrire le JSON mis à jour dans le fichier
+   if (!write_file(CLIENTS_FILE, updated_json))
+   {
+      perror("Erreur lors de l'écriture du fichier\n");
+      free(updated_json);
+      cJSON_Delete(json);
+      return 0;
+   }
+
+   // !!! nettoyage
+   free(updated_json);
+   cJSON_Delete(json);
+
+   return 1;
 }

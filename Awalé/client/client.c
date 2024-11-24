@@ -125,8 +125,8 @@ static void app(const char *address, const char *name)
             write_server(sock, serialize_message(GAME_LIST, ""));
          }
          // envoyer un message privé
-         else if (!strncmp(buffer, CMD_Private, strlen(CMD_Private))){
-            memmove(buffer, buffer + strlen(CMD_Private) + 1, strlen(buffer) - strlen(CMD_Private));
+         else if (!strncmp(buffer, CMD_PRIVATE, strlen(CMD_PRIVATE))){
+            memmove(buffer, buffer + strlen(CMD_PRIVATE) + 1, strlen(buffer) - strlen(CMD_PRIVATE));
             write_server(sock, serialize_message(PRIVATE_MSG, buffer));
          }
          // abandonner la partie
@@ -140,6 +140,11 @@ static void app(const char *address, const char *name)
          else if (!strncmp(buffer, CMD_BIO_SET, strlen(CMD_BIO_SET))){
             memmove(buffer, buffer + strlen(CMD_BIO_SET) + 1, strlen(buffer) - strlen(CMD_BIO_SET));
             write_server(sock, serialize_message(SET_BIO, buffer));
+         }
+         // ajouter un ami
+         else if (!strncmp(buffer, CMD_ADD_FRIEND, strlen(CMD_ADD_FRIEND))){
+            memmove(buffer, buffer + strlen(CMD_ADD_FRIEND) + 1, strlen(buffer) - strlen(CMD_ADD_FRIEND));
+            write_server(sock, serialize_message(ADD_FRIEND, buffer));
          }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);

@@ -224,6 +224,9 @@ static void app(void)
                         send_message_to_client(client, "Bio mise à jour");
                      }
                   }
+                  else if (strncmp(buffer, ADD_FRIEND, 2) == 0){
+                     add_friend_to_db(clients[i].name, buffer + 2);
+                  }
                }
                break;
             }
