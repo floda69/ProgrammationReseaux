@@ -130,9 +130,22 @@ static void app(void)
                /* client disconnected */
                if (c == 0)
                {
+                  int wait = 0;
+                  if (client.isInGame)
+                  {
+                     int index_game = get_game_index_by_name(games, client.name, gameIndex);
+                     resign(games, gameIndex, &games[index_game], index_game, clients, actual, client);
+                     wait = 1;
+                  }
+                  else if (client.invite[0] != 0)
+                  {
+                     decline_invite(clients, client, actual);
+                     wait = 1;
+                  }
                   closesocket(clients[i].sock);
                   remove_client(clients, i, &actual);
                   strncpy(buffer, client.name, BUF_SIZE - 1);
+                  if (wait) usleep(1000); // wait 0.001s to be sure the messages are separated
                   strncat(buffer, " disconnected !\n", BUF_SIZE - strlen(buffer) - 1);
                   send_message_to_all_clients(clients, client, actual, buffer, 1);
                }
@@ -179,6 +192,18 @@ static void app(void)
                   else if (strncmp(buffer, GAME_LIST, 2) == 0)
                   {
                      send_games_list_on_demand(games, gameIndex, client);
+                  }
+                  else if (strncmp(buffer, RESIGN, 2) == 0)
+                  {
+                     if (client.isInGame)
+                     {
+                        int index_game = get_game_index_by_name(games, client.name, gameIndex);
+                        resign(games, gameIndex, &games[index_game], index_game, clients, actual, client);
+                     }
+                     else
+                     {
+                        send_message_to_client(client, "Impossible d'abandonner sans partie en cours");
+                     }
                   }
                }
                break;
@@ -308,6 +333,11 @@ static void defy_player(Client *clients, Client defier, int actual, const char *
 static void decline_invite(Client *clients, Client client, int actual)
 {
    int i = 0;
+   if (client.isInGame)
+   {
+      send_message_to_client(client, "Impossible pendant une partie");
+      return;
+   }
    if (client.invite[0] == 0)
    {
       send_message_to_client(client, "Pas de demande en cours");
@@ -321,11 +351,6 @@ static void decline_invite(Client *clients, Client client, int actual)
       clients[index].invite[0] = 0;
       clients[moi].invite[0] = 0;
       send_message_to_client(clients[index], "Demande annulée");
-      return;
-   }
-   if (client.invite[0] == 2)
-   {
-      send_message_to_client(client, "Impossible pendant une partie");
       return;
    }
    for (i = 0; i < actual; i++)
@@ -344,6 +369,11 @@ static void decline_invite(Client *clients, Client client, int actual)
 static int accept_invite(Client *clients, Client client, int actual)
 {
    int i = 0;
+   if (client.isInGame)
+   {
+      send_message_to_client(client, "Impossible pendant une partie");
+      return 0;
+   }
    if (client.invite[0] == 0)
    {
       send_message_to_client(client, "Pas de demande en cours");
@@ -354,11 +384,6 @@ static int accept_invite(Client *clients, Client client, int actual)
       send_message_to_client(client, "Attendez la réponse du joueur défié");
       return 0;
    }
-   if (client.invite[0] == 2)
-   {
-      send_message_to_client(client, "Impossible pendant une partie");
-      return 0;
-   }
    for (i = 0; i < actual; i++)
    {
       if (!strcmp(client.invite, clients[i].name))
@@ -366,8 +391,6 @@ static int accept_invite(Client *clients, Client client, int actual)
          int index = get_player_index_by_name(clients, client.name, actual);
          clients[index].isInGame = 1;
          clients[i].isInGame = 1;
-         clients[index].invite[0] = 2;
-         clients[i].invite[0] = 2;
          return 1;
       }
    }
@@ -398,7 +421,7 @@ static void launch_game(Client *clients, Client client, int actual, Awale *games
    (*gameIndex)++;
    send_message_to_client(client, "Bienvenue dans le jeu d'Awalé !\n");
    send_message_to_client(opponent, "Demande acceptée\nBienvenue dans le jeu d'Awalé !\n");
-   usleep(100000); // wait 0.1s to be sure the messages are separated
+   usleep(1000); // wait 0.001s to be sure the messages are separated
    send_game(&jeu, clients, actual);
 }
 
@@ -447,7 +470,7 @@ static void play(int case_choisie, Client *clients, Client client, int actual, A
          send_game(&games[index_game], clients, actual);
          if (fin_de_jeu(&games[index_game]))
          {
-            usleep(100000); // wait 0.1s to be sure the messages are separated
+            usleep(1000); // wait 0.001s to be sure the messages are separated
             end_game(games, gameIndex, &games[index_game], index_game, clients, actual);
          }
       }
@@ -486,6 +509,32 @@ static void end_game(Awale *games, int gameIndex, Awale *game, int index_game, C
    {
       send_message_to_client(clients[index1], "Match nul !");
       send_message_to_client(clients[index2], "Match nul !");
+   }
+   clients[index1].isInGame = 0;
+   clients[index2].isInGame = 0;
+   clients[index1].invite[0] = 0;
+   clients[index2].invite[0] = 0;
+   for (int i = index_game; i <= gameIndex - 1; i++)
+   {
+      games[i] = games[i + 1];
+   }
+}
+
+static void resign(Awale *games, int gameIndex, Awale *game, int index_game, Client *clients, int actual, Client client)
+{
+   int index1 = get_player_index_by_name(clients, game->j1, actual);
+   int index2 = get_player_index_by_name(clients, game->j2, actual);
+   char message[BUF_SIZE];
+   message[0] = 0;
+   strncpy(message, client.name, BUF_SIZE - strlen(message) - 1);
+   strncat(message, " a abandonné. Vous remportez la partie !\n", BUF_SIZE - strlen(message) - 1);
+   if (strcmp(clients[index1].name, client.name) == 0)
+   {
+      send_message_to_client(clients[index2], message);
+   }
+   else
+   {
+      send_message_to_client(clients[index1], message);
    }
    clients[index1].isInGame = 0;
    clients[index2].isInGame = 0;

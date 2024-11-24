@@ -20,6 +20,7 @@
 #define SPECTATE "10"
 #define GAME_LIST "11"
 #define PRIVATE_MSG "12"
+#define RESIGN "13"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -33,6 +34,7 @@
 #define CMD_SPECTATE "/spectate"
 #define CMD_GAME_LIST "/games"
 #define CMD_Private "/private"
+#define CMD_RESIGN "/resign"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

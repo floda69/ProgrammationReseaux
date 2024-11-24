@@ -129,6 +129,10 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_Private) + 1, strlen(buffer) - strlen(CMD_Private));
             write_server(sock, serialize_message(PRIVATE_MSG, buffer));
          }
+         // abandonner la partie
+         else if (!strncmp(buffer, CMD_RESIGN, strlen(CMD_RESIGN))){
+            write_server(sock, serialize_message(RESIGN, ""));
+         }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);
       }
