@@ -114,7 +114,7 @@ static void app(void)
          clients[actual] = c;
          actual++;
 
-         strncat(buffer, " Vient de se connecter !\n", BUF_SIZE - strlen(buffer) - 1);
+         strncat(buffer, " vient de se connecter !\n", BUF_SIZE - strlen(buffer) - 1);
          send_message_to_all_clients(clients, c, actual, buffer, 1);
       }
       else

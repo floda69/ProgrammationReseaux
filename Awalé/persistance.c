@@ -38,6 +38,25 @@ int write_file(const char *filename, const char *content)
    return 1;
 }
 
+int is_string_in_json_array(cJSON *array, const char *string)
+{
+   // pas besoin de chercher
+   if (!cJSON_IsArray(array) || string == NULL)
+   {
+      return 0;
+   }
+
+   cJSON *item = NULL;
+   cJSON_ArrayForEach(item, array)
+   {
+      if (cJSON_IsString(item) && strcmp(item->valuestring, string) == 0)
+      {
+         return 1;
+      }
+   }
+   return 0;
+}
+
 int add_name_to_db(const char *name)
 {
    char *json_clients = read_file(CLIENTS_FILE);
@@ -54,8 +73,9 @@ int add_name_to_db(const char *name)
       return 0;
    }
 
-   // ajouter nom à la liste des clients
+   // ajouter nom à la liste des clients SSI il n'y est pas
    cJSON *clients = cJSON_GetObjectItem(json, "clients");
+   if (is_string_in_json_array(clients, name)) return 0;
    cJSON *name_json = cJSON_CreateString(name);
    cJSON_AddItemToArray(clients, name_json);
 
