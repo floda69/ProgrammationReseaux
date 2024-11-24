@@ -1,39 +1,84 @@
-# TP 2/3/4 - Programmation d’un serveur de Jeu Awalé
-Objectifs
-L’objectif du TP est de réaliser un serveur de jeu Awalé. Le but est d’avoir une application client/serveur qui permettent aux clients de jouer des parties, de vérifier que les règles sont biens appliquées, de communiquer, de garder des historiques (de score, de parties jouées etc.).
+# Guide Utilisateur - Jeu Awalé Client-Serveur
 
-Le TP est incrémental, vous pouvez ajouter des fonctionnalités à votre application à mesure que votre implantation progresse : suivre une partie en tant qu’observateur, organisation de tournois, discussions de groupe,
-enregistrement des discussions, cryptage point à point, les seules limites sont celles de votre imagination et du temps que vous allez y consacrer.
+Bienvenue dans l’application de jeu Awalé ! Ce guide explique comment utiliser les fonctionnalités disponibles pour jouer, observer des parties, discuter avec d'autres joueurs, etc.
 
-Votre travail sera jugé sur une démonstration (prévoir 10 min) et sur le code que vous fournirez lors du dernier TP. Il faut privilégier une application robuste qui fonctionne pluôt que de multiplier les fonctionnalités qui ne fonctionnent pas. Le fait que le code soit évolutif fait aussi partie de ce qui est demandé: est il facile de rajouter de nouvelles fonctionnalités ?
+## Introduction
 
-Description du travail attendu
-Vous réaliserez votre implantation de manière incrémentale. Il est primordial de bien réfléchir aux aspects architecturaux avant toute implantation: que se passe-t-il sur le serveur ? sur les clients ? quelle est votre politique de communication ? Quels sont les différents protocoles : pour les parties, pour les discussions, etc. Comment les clients peuvent s’appeler/se défier entre eux (juste par leur nom ? autrement ?) ? Quels sont vos choix pour que votre code soit évolutif ? Les tests de votre application sont importants: que se passe t il si un client se déconnecte ? Peut il récupérer la partie ? etc…
+Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en ligne via un système client-serveur. Vous pouvez :
+- Jouer contre d’autres joueurs.
+- Observer des parties en cours.
+- Participer à des discussions globales ou privées.
+- modifier et afficher votre bio.
 
-Vous pouvez partir de l’exemple donnez en cours 1 dans lequel le serveur rediffuse à tous les clients un message envoyé par un client: Client Serveur V2 dans Exemples - Cours 1
+---
 
-Le jeu d’Awalé
-Les règles du jeu Awalé sont simples et peuvent se trouver ici: article wikipedia Awalé
+## Démarrage
+### Compilation
+1. Placez-vous dans le répertoire Awale.
+```bash
+cd Awalé
+```   
+2. Utilisez le `Makefile` pour compiler l’application :
+```bash
+ make
+```   
+### Lancer le serveur
+Démarrez le serveur en exécutant :
+```bash
+ ./serveur/serveur_exec
+```
+### Lancer le client
+Démarrez un client en exécutant :
+```bash
+./client/client_exec <IP> <name>
+```
+## Commandes Disponibles
 
-Il faut que vous implantiez ce jeu c’est à dire qu’il faut être capable de représenter le plateau de jeu, de vérifier la légalité des coups et d’adjuger la victoire. D’autre part il faudra pouvoir sauvegarder et diffuser des parties, aux joueurs bien sûr, mais aussi par exemple à des observateurs. Juste une sortie ASCII est suffisante (on pourrait faire une belle interface graphique par dessus mais ce n’est pas le but du TP).
+### Commandes Générales
+- **`/disconnect`** : Déconnecte le client du serveur.
+- **`/players`** : Affiche la liste des joueurs connectés.
+- **`/games`** : Affiche la liste des parties en cours.
+- **`/bio <pseudo>`** : Affiche la bio d'un joueur.
+- **`/setbio <texte>`** : Définit ou met à jour votre bio (200 caractères maximum).
 
-Guide schématique de l’implantation
-Implanter le jeu d’Awalé : représentation interne, comment jouer un coup, compter les points, sauvegarder une partie, imprimer l’état du plateau etc.
-Concevez une application client/serveur. Chaque client s’inscrit avec un pseudo.
-Chaque client peut demander au serveur la liste des pseudos en ligne.
-Un client A peut défier un autre client B. B peut accepter ou refuser.
-Quand une partie est créée entre A et B, le serveur décide de qui commence par tirage au sort. Le serveur vérifie la légalité des coups joués (en utilisant le code créé pour 0).
-Si vous avez une version qui fonctionne pour une partie, Vérifiez que cela fonctionne pour plusieurs parties en jeu. Vous pouvez ajouter comme fonctionalité un listing des parties en cours, et un mode “observateur” pour lequel le serveur envoie le plateau et le score à C qui observe la partie entre A et B.
-Implanter une option de chat : les joueurs en plus d’envoyer des coups à peuvent échanger des messages pour discuter (dans et en dehors d’une partie).
-Donnez la possiblité à un joueur d’écrire une bio : disons 10 lignes en ASCII, pour se présenter. On peut demander au serveur de nous afficher la bio d’un pseudo particulier.
-Ajouter un mode privé: un joueur peut limiter la liste des observateurs à une liste d’amis. Implanter cette fonctionalité.
-Ajouter la fonctionnalité de sauvegarde de partie jouée pour pouvoir la regarder par la suite.
-Libre à vore imagination: classement des joueurs : article wikipedia sur le classement elo, organisation de tournois, adapter pour un autre jeu etc.
-Environnement de programmation
-Le programme sera fait en C. Pensez à répartir vos fonctions dans différents fichiers et à produire un Makefile pour la compilation. Pensez bien aux structures de données que vous allez utiliser. Vous pouvez partir des exemples vus dans les TP précédents ou bien en cours. Le but est de réaliser un serveur qui permette à deux clients de jouer une partie d’Awalé. Le serveur vérifie la validité des coups et compte les points.
+### Commandes de Chat
+- **`/switch chat mode`** : Bascule entre le mode de chat global et le mode de chat privé. Par défaut un client est en mode global et reçoit donc tous les messages, en mode privé il recevra uniquement les messages privés.
+- **`/global <message>`** : Envoie un message dans le chat global.
+- **`/private <pseudo> <message>`** : Envoie un message privé à un joueur spécifique.
 
-Partez d’une base client serveur déjà programmée (au TP précédent ou bien en reprenant l’exemple du cours cité avant).
+### Commandes de Jeu
+- **`/defy <pseudo>`** : Défie un joueur pour une partie.
+- **`/accept`** : Accepte une invitation à jouer.
+- **`/decline`** : Refuse une invitation à jouer.
+- **`/play <case>`** : Joue un coup lorsque vous êtes dans une partie, le coup est un entier entre 0 et 5.
+- **`/spectate <joueur>`** : Observe la partie en cours d'un joueur.
+- **`/resign`** : Abandonne la partie en cours.
 
-Vous enverrez tous les fichiers sources nécessaires pour compiler ainsi que comment les compiler. Vous incluerez aussi un manuel de l’utilisateur (quelles fonctionalités sont implantées par l’application et comment les utiliser pour le client et le serveur). Le tout sera envoyé par mail à frederic.prost@insa-lyon.fr avec pour sujet [4IF-PR-TP-CR].
+## Affichage du jeu
+Pendant une partie, le jeu s'actualise en temps réel à chaque coup joué.
+Le plateau s'affiche dans l'invite de commande comme suit :
 
-Une présentation de 10min sera a prévoir pendant le dernier TP.
+```bash
+Plateau :
+joueur1
+	 4  4  4  4  4  4 
+  0				 0
+	 4  4  4  4  4  4 
+				joueur2
+```
+Le jeu demande au joueur dont c'est je tour de choisir une case de 0 à 5, les cases sont ordonnées de gauche à droite pour les 2 joueurs. Les scores sont affichés aux extrémités du plateau, du côté correspondant au joueur.
+```c
+	     0  1  2  3  4  5 
+  score j1			score j2
+	     0  1  2  3  4  5 
+```
+Enfin, le jeu tourne dans le sens **trigonométrique / antihoraire**. 
+Par exemple, si c'est au joueur 1 de faire un coup, et qu'il entre la commande `/play 1` alors le nous auront le plateau suivant : 
+```bash
+Plateau :
+joueur1
+	 5  0  4  4  4  4 
+  0				 0
+	 5  5  5  4  4  4 
+				joueur2
+```
