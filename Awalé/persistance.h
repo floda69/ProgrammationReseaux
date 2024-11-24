@@ -17,5 +17,6 @@ int add_name_to_db(const char *name);
 int change_bio_in_db(const char *name, const char *new_bio);
 char *get_bio_from_db(const char *name, char *bio_buffer);
 int add_friend_to_db(const char *name, const char *friend);
+int switch_privacy_in_db(const char *name);
 
 #endif

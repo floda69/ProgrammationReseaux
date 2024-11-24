@@ -227,6 +227,9 @@ static void app(void)
                   else if (strncmp(buffer, ADD_FRIEND, 2) == 0){
                      add_friend_to_db(clients[i].name, buffer + 2);
                   }
+                  else if (strncmp(buffer, SWITCH_PRIVACY, 2) == 0){
+                     switch_privacy_in_db(clients[i].name);
+                  }
                }
                break;
             }

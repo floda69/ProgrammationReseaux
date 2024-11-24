@@ -43,18 +43,20 @@ int is_string_in_json_array(cJSON *array, const char *string)
    // pas besoin de chercher
    if (!cJSON_IsArray(array) || string == NULL)
    {
-      return 0;
+      return -1;
    }
 
+   int index = 0;
    cJSON *item = NULL;
    cJSON_ArrayForEach(item, array)
    {
       if (cJSON_IsString(item) && strcmp(item->valuestring, string) == 0)
       {
-         return 1;
+         return index;
       }
+      index++;
    }
-   return 0;
+   return -1;
 }
 
 int delete_bio_from_db(cJSON *array, const char *name)
@@ -120,7 +122,7 @@ int add_name_to_db(const char *name)
 
    // ajouter nom à la liste des clients SSI il n'y est pas
    cJSON *clients = cJSON_GetObjectItem(json, "clients");
-   if (is_string_in_json_array(clients, name))
+   if (is_string_in_json_array(clients, name) != -1)
       return 0;
    cJSON *name_json = cJSON_CreateString(name);
    cJSON_AddItemToArray(clients, name_json);
@@ -251,7 +253,7 @@ int add_friend_to_db(const char *name, const char *friend)
    {
       cJSON *requester = cJSON_GetArrayItem(friends, index);
       cJSON *requester_friends = cJSON_GetObjectItem(requester, "my_friends");
-      if (!is_string_in_json_array(requester_friends, friend))
+      if (is_string_in_json_array(requester_friends, friend) == -1)
          cJSON_AddItemToArray(requester_friends, cJSON_CreateString(friend));
    }
    else
@@ -265,6 +267,49 @@ int add_friend_to_db(const char *name, const char *friend)
 
       cJSON_AddItemToArray(friends, friend_entry);
    }
+
+   // convertir le JSON mis à jour en chaîne
+   char *updated_json = cJSON_Print(json);
+
+   // écrire le JSON mis à jour dans le fichier
+   if (!write_file(CLIENTS_FILE, updated_json))
+   {
+      perror("Erreur lors de l'écriture du fichier\n");
+      free(updated_json);
+      cJSON_Delete(json);
+      return 0;
+   }
+
+   // !!! nettoyage
+   free(updated_json);
+   cJSON_Delete(json);
+
+   return 1;
+}
+
+int switch_privacy_in_db(const char *name)
+{
+   char *json_clients = read_file(CLIENTS_FILE);
+   if (json_clients == NULL)
+   {
+      return 0;
+   }
+   // parser string vers objet JSON
+   cJSON *json = cJSON_Parse(json_clients);
+   free(json_clients);
+   if (json == NULL)
+   {
+      perror("Erreur lors du parsing du JSON\n");
+      return 0;
+   }
+
+   // ajouter nom à la liste des clients SSI il n'y est pas
+   cJSON *private_clients = cJSON_GetObjectItem(json, "privates");
+   int index = is_string_in_json_array(private_clients, name);
+   if (index != -1)
+      cJSON_DeleteItemFromArray(private_clients, index);
+   else
+      cJSON_AddItemToArray(private_clients, cJSON_CreateString(name));
 
    // convertir le JSON mis à jour en chaîne
    char *updated_json = cJSON_Print(json);

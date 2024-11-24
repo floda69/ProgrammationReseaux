@@ -146,6 +146,11 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_ADD_FRIEND) + 1, strlen(buffer) - strlen(CMD_ADD_FRIEND));
             write_server(sock, serialize_message(ADD_FRIEND, buffer));
          }
+         // changer la restriction spectateur
+         else if (!strncmp(buffer, CMD_SWITCH_PRIVACY, strlen(CMD_SWITCH_PRIVACY))){
+            memmove(buffer, buffer + strlen(CMD_SWITCH_PRIVACY) + 1, strlen(buffer) - strlen(CMD_SWITCH_PRIVACY));
+            write_server(sock, serialize_message(SWITCH_PRIVACY, buffer));
+         }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);
       }
