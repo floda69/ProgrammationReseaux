@@ -13,6 +13,7 @@ typedef struct
    int isInGlobalChatMode;
    char invite[NAME_SIZE+1];
    char bio[BIO_SIZE];
+   char savePath[BIO_SIZE];
 }Client;
 
 #endif /* guard */

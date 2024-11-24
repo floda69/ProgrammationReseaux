@@ -67,5 +67,6 @@ static void send_games_list_on_demand(Awale *games, int gameIndex, Client client
 static void send_private_message(Client *clients, Client sender, int actual, const char *buffer);
 static void resign(Awale *games, int gameIndex, Awale *game, int index_game, Client *clients, int actual, Client client);
 static void send_bio_on_demand(Client* clients, Client client, int actual, const char *buffer);
+static int save_game(const char *file, const char *buffer, int turn);
 
 #endif /* guard */

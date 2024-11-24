@@ -151,6 +151,11 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_SWITCH_PRIVACY) + 1, strlen(buffer) - strlen(CMD_SWITCH_PRIVACY));
             write_server(sock, serialize_message(SWITCH_PRIVACY, buffer));
          }
+         // changer le chemin du fichier de sauvegarde
+         else if (!strncmp(buffer, CMD_SAVE_FILE, strlen(CMD_SAVE_FILE))){
+            memmove(buffer, buffer + strlen(CMD_SAVE_FILE) + 1, strlen(buffer) - strlen(CMD_SAVE_FILE));
+            write_server(sock, serialize_message(ADD_SAVE_FILE, buffer));
+         }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);
       }

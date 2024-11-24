@@ -1,12 +1,6 @@
 {
-	"clients":	["toto", "tutu"],
-	"bios":	[{
-			"name":	"toto",
-			"bio":	"jigrsjgfm"
-		}, {
-			"name":	"tutu",
-			"bio":	"test4"
-		}],
+	"clients":	[],
+	"bios":	[],
 	"friends":	[],
-	"privates": []
+	"privates":	[]
 }

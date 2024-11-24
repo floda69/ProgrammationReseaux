@@ -108,7 +108,11 @@ static void app(void)
 
          FD_SET(csock, &rdfs);
 
-         Client c = {.sock = csock, .isInGame = 0, .isInGlobalChatMode = 1, .invite = 0};
+         Client c = {.sock = csock,
+                     .isInGame = 0,
+                     .isInGlobalChatMode = 1,
+                     .invite = 0,
+                     .savePath = 0};
          strncpy(c.name, buffer, NAME_SIZE - 1);
          get_bio_from_db(c.name, c.bio);
          add_name_to_db(c.name);
@@ -231,6 +235,10 @@ static void app(void)
                   else if (strncmp(buffer, SWITCH_PRIVACY, 2) == 0)
                   {
                      switch_privacy_in_db(clients[i].name);
+                  }
+                  else if (strncmp(buffer, ADD_SAVE_FILE, 2) == 0)
+                  {
+                     strncpy(clients[i].savePath, buffer + 2, BIO_SIZE - 1);
                   }
                }
                break;
@@ -462,6 +470,8 @@ static void send_game(Awale *game, Client *clients, int actual)
    serialize_awale(game, message + 2, BUF_SIZE - 3);
    int index1 = get_player_index_by_name(clients, game->j1, actual);
    int index2 = get_player_index_by_name(clients, game->j2, actual);
+   save_game(clients[index1].savePath, message + 2, game->turn);
+   save_game(clients[index2].savePath, message + 2, game->turn);
    write_client(clients[index1].sock, message);
    write_client(clients[index2].sock, message);
    for (int i = 0; i < actual; i++)
@@ -704,6 +714,63 @@ static void switch_client_chat_mode(Client *client)
    int tempSwitch = client->isInGlobalChatMode;
    client->isInGlobalChatMode = (tempSwitch == 0) ? 1 : 0;
    printf(" à %d\n", client->isInGlobalChatMode);
+}
+
+static int save_game(const char *file, const char *buffer, int turn)
+{
+   // char turn_number[BUF_SIZE];
+   // snprintf(turn_number, sizeof(turn_number), "%d", turn);
+
+   char *json_partie = read_file(file);
+   if (json_partie == NULL)
+   {
+      cJSON *partie = cJSON_CreateArray();
+      cJSON_AddItemToArray(partie, cJSON_CreateString(buffer));
+      // convertir le JSON mis à jour en chaîne
+      char *updated_json = cJSON_Print(partie);
+      // écrire le JSON mis à jour dans le fichier
+      if (!write_file(file, updated_json))
+      {
+         perror("Erreur lors de l'écriture dans le fichier de sauvegarde.\n");
+         free(updated_json);
+         cJSON_Delete(partie);
+         return 0;
+      }
+
+      // !!! nettoyage
+      free(updated_json);
+      cJSON_Delete(partie);
+      return 1;
+   }
+   else
+   {
+      // parser string vers objet JSON
+      cJSON *partie = cJSON_Parse(json_partie);
+      free(json_partie);
+      if (partie == NULL)
+      {
+         perror("Erreur lors du parsing du JSON\n");
+         return 0;
+      }
+
+      cJSON_AddItemToArray(partie, cJSON_CreateString(buffer));
+
+      // convertir le JSON mis à jour en chaîne
+      char *updated_json = cJSON_Print(partie);
+      // écrire le JSON mis à jour dans le fichier
+      if (!write_file(file, updated_json))
+      {
+         perror("Erreur lors de l'écriture dans le fichier de sauvegarde.\n");
+         free(updated_json);
+         cJSON_Delete(partie);
+         return 0;
+      }
+
+      // !!! nettoyage
+      free(updated_json);
+      cJSON_Delete(partie);
+      return 1;
+   }
 }
 
 static int init_connection(void)
