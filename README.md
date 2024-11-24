@@ -2,7 +2,7 @@
 
 Bienvenue dans l’application de jeu Awalé ! Ce guide explique comment utiliser les fonctionnalités disponibles pour jouer, observer des parties, discuter avec d'autres joueurs, etc.
 
-## Introduction
+## 1 - Introduction
 
 Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en ligne via un système client-serveur. Le serveur permet de :
 - Jouer contre d’autres joueurs.
@@ -12,7 +12,7 @@ Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en 
 
 ---
 
-## Démarrage
+## 2 - Démarrage
 ### Compilation
 1. Placez-vous dans le répertoire Awale.
 ```bash
@@ -32,7 +32,8 @@ Démarrez un client en exécutant :
 ```bash
 ./client/client_exec <IP> <name>
 ```
-## Commandes Disponibles
+---
+## 3 - Commandes Disponibles
 
 ### Commandes Générales
 - **`/disconnect`** : Déconnecte le client du serveur.
@@ -53,8 +54,8 @@ Démarrez un client en exécutant :
 - **`/play <case>`** : Joue un coup lorsque vous êtes dans une partie, le coup est un entier entre 0 et 5.
 - **`/spectate <joueur>`** : Observe la partie en cours d'un joueur.
 - **`/resign`** : Abandonne la partie en cours.
-
-## Affichage du jeu
+---
+## 4 - Affichage du jeu
 Pendant une partie, le jeu s'actualise en temps réel à chaque coup joué.
 Le plateau s'affiche dans l'invite de commande comme suit :
 
@@ -66,7 +67,7 @@ joueur1
 	 4  4  4  4  4  4 
 				joueur2
 ```
-Le jeu demande au joueur dont c'est je tour de choisir une case de 0 à 5, les cases sont ordonnées de gauche à droite pour les 2 joueurs. Les scores sont affichés aux extrémités du plateau, du côté correspondant au joueur.
+Le jeu demande au joueur dont c'est le tour de choisir une case de 0 à 5, les cases sont ordonnées de gauche à droite pour les 2 joueurs. Les scores sont affichés aux extrémités du plateau, du côté correspondant au joueur.
 ```c
 	     0  1  2  3  4  5 
   score j1			score j2
