@@ -151,6 +151,10 @@ static void app(void)
                   {
                      send_message_to_all_clients(clients, client, actual, buffer + 3, 0);
                   }
+                  else if (strncmp(buffer, PRIVATE_MSG, 2)==0)
+                  {
+                     send_private_message(clients, client, actual, buffer + 2);
+                  }
                   else if (strncmp(buffer, DEFY, 2) == 0)
                   {
                      defy_player(clients, client, actual, buffer + 2);
@@ -230,6 +234,39 @@ static void send_message_to_all_clients(Client *clients, Client sender, int actu
          }
       }
    }
+}
+
+static void send_private_message(Client *clients, Client sender, int actual, const char *buffer)
+{
+   int i = 0;
+   char message[BUF_SIZE];
+   message[0] = 0;
+   char receiver[NAME_SIZE]; 
+   const char *msg_start;
+   const char *space_pos = strchr(buffer, ' ');
+    if (space_pos != NULL) {
+      size_t name_length = space_pos - buffer;
+      strncpy(receiver, buffer, name_length);
+      receiver[name_length] = '\0';
+      msg_start = space_pos + 1; // Message starts after the space
+      int index = get_player_index_by_name(clients, receiver, actual);
+      if (index != -1) {
+         strncpy(message, PRIVATE_MSG, BUF_SIZE - 1);
+         strncat(message, CYAN, sizeof message - strlen(message) - 1);
+         strncat(message, sender.name, sizeof message - strlen(message) - 1);
+         strncat(message, " : ", sizeof message - strlen(message) - 1);
+         strncat(message, msg_start, sizeof message - strlen(message) - 1);
+         strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
+         write_client(clients[index].sock, message);
+        return;
+      }
+   } 
+   strncpy(message, PRIVATE_MSG, BUF_SIZE - 1);
+   strncat(message, RED, sizeof message - strlen(message) - 1);
+   strncat(message, "Erreur : Impossible d'envoyer le message", sizeof message - strlen(message) - 1);
+   strncat(message, COLOR_RESET, sizeof message - strlen(message) - 1);
+   write_client(sender.sock, message);
+   return;
 }
 
 static void send_message_to_client(Client receiver, const char *buffer)
@@ -630,6 +667,7 @@ static int get_player_index_by_name(Client *clients, char *name, int actual)
          return i;
       }
    }
+   return -1;
 }
 
 int main(int argc, char **argv)

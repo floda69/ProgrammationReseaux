@@ -112,7 +112,7 @@ static void app(const char *address, const char *name)
             }
             else
             {
-                  printf("%sCoup invalide, essayez encore.%s\n",RED, COLOR_RESET);
+               printf("%sCoup invalide, essayez encore.%s\n",RED, COLOR_RESET);
             }
          }
          // regarder la partie d'un joueur
@@ -123,6 +123,11 @@ static void app(const char *address, const char *name)
          // lister les parties en cours
          else if (!strncmp(buffer, CMD_GAME_LIST, strlen(CMD_GAME_LIST))){
             write_server(sock, serialize_message(GAME_LIST, ""));
+         }
+         // envoyer un message privé
+         else if (!strncmp(buffer, CMD_Private, strlen(CMD_Private))){
+            memmove(buffer, buffer + strlen(CMD_Private) + 1, strlen(buffer) - strlen(CMD_Private));
+            write_server(sock, serialize_message(PRIVATE_MSG, buffer));
          }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);
@@ -136,6 +141,18 @@ static void app(const char *address, const char *name)
             puts("Server disconnected !");
             break;
          }
+         else if (!strncmp(buffer, GAME, 2))
+         {
+            deserialize_awale(&jeu, buffer + 2);
+            afficher_plateau(&jeu);
+            if ((strcmp(jeu.j1, name)==0 && jeu.turn==0) || (strcmp(jeu.j2, name)==0 && jeu.turn==1)) 
+               printf("%s%s, choisissez une case (0 à 5) %s\n", MAGENTA, name, COLOR_RESET);
+         }
+         else if (!strncmp(buffer, NAME_USED,2))
+         {
+            printf("Nom déjà utilisé, veuillez en choisir un autre\n");
+            exit(0);
+         }
          else if (!strncmp(buffer, SERVER_MSG, 2))
          {
             puts(buffer + 2);
@@ -148,18 +165,9 @@ static void app(const char *address, const char *name)
          {
             puts(buffer + 2);
          }
-         else if (!strncmp(buffer, GAME, 2))
+         else if (!strncmp(buffer, PRIVATE_MSG, 2))
          {
-            
-            deserialize_awale(&jeu, buffer + 2);
-            afficher_plateau(&jeu);
-            if ((strcmp(jeu.j1, name)==0 && jeu.turn==0) || (strcmp(jeu.j2, name)==0 && jeu.turn==1)) 
-               printf("%s%s, choisissez une case (0 à 5) %s\n", MAGENTA, name, COLOR_RESET);
-         }
-         else if (!strncmp(buffer, NAME_USED,2))
-         {
-            printf("Nom déjà utilisé, veuillez en choisir un autre\n");
-            exit(0);
+            puts(buffer + 2);
          }
          else if (!strncmp(buffer, GAME_LIST, 2))
          {

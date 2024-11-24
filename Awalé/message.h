@@ -19,6 +19,7 @@
 #define PLAY "09"
 #define SPECTATE "10"
 #define GAME_LIST "11"
+#define PRIVATE_MSG "12"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -31,6 +32,7 @@
 #define CMD_PLAY "/play"
 #define CMD_SPECTATE "/spectate"
 #define CMD_GAME_LIST "/games"
+#define CMD_Private "/private"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 
@@ -40,6 +42,7 @@
 #define YELLOW "\033[1;33m"
 #define BLUE "\033[1;34m"
 #define MAGENTA "\033[1;35m"
+#define CYAN "\033[1;36m"
 #define COLOR_RESET "\033[1;0m"
 
 const char* serialize_message(char *code, const char *message);

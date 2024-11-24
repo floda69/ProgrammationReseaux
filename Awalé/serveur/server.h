@@ -64,5 +64,6 @@ static void play(int case_choisie, Client *clients, Client client, int actual, A
 static void end_game(Awale* games, int gameIndex, Awale *game, int index_game, Client *clients, int actual);
 static void spectate(const char *buffer, Awale *games, int actual, Client client);
 static void send_games_list_on_demand(Awale *games, int gameIndex, Client client);
+static void send_private_message(Client *clients, Client sender, int actual, const char *buffer);
 
 #endif /* guard */
