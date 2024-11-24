@@ -4,7 +4,7 @@ Bienvenue dans l’application de jeu Awalé ! Ce guide explique comment utilise
 
 ## Introduction
 
-Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en ligne via un système client-serveur. Vous pouvez :
+Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en ligne via un système client-serveur. Le serveur permet de :
 - Jouer contre d’autres joueurs.
 - Observer des parties en cours.
 - Participer à des discussions globales ou privées.
@@ -73,7 +73,7 @@ Le jeu demande au joueur dont c'est je tour de choisir une case de 0 à 5, les c
 	     0  1  2  3  4  5 
 ```
 Enfin, le jeu tourne dans le sens **trigonométrique / antihoraire**. 
-Par exemple, si c'est au joueur 1 de faire un coup, et qu'il entre la commande `/play 1` alors le nous auront le plateau suivant : 
+Par exemple, si c'est au joueur 1 de faire un coup, et qu'il entre la commande `/play 1` alors nous auront le plateau suivant : 
 ```bash
 Plateau :
 joueur1
