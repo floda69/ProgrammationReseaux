@@ -41,6 +41,7 @@ Démarrez un client en exécutant :
 - **`/games`** : Affiche la liste des parties en cours.
 - **`/bio <pseudo>`** : Affiche la bio d'un joueur.
 - **`/setbio <texte>`** : Définit ou met à jour votre bio (200 caractères maximum).
+- **`/mkfriend`** : Ajoute un ami à sa liste persistante d'amis.
 
 ### Commandes de Chat
 - **`/switch chat mode`** : Bascule entre le mode de chat global et le mode de chat privé. Par défaut un client est en mode global et reçoit donc tous les messages, en mode privé il recevra uniquement les messages privés.
@@ -54,6 +55,9 @@ Démarrez un client en exécutant :
 - **`/play <case>`** : Joue un coup lorsque vous êtes dans une partie, le coup est un entier entre 0 et 5.
 - **`/spectate <joueur>`** : Observe la partie en cours d'un joueur.
 - **`/resign`** : Abandonne la partie en cours.
+- **`/switch privacy`** : Fait passer du mode privé à publique et réciproquement. Seuls les amis peuvent observer une partie privée.
+- **`/save`** : Définit un fichier de sauvegarde.
+- **`/load save`** : Affiche le contenu du fichier de sauvegarde défini.
 ---
 ## 4 - Affichage du jeu
 Pendant une partie, le jeu s'actualise en temps réel à chaque coup joué.
