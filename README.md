@@ -20,6 +20,9 @@ Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en 
 ## 2 - Démarrage
 ### Compilation
 Placez-vous dans le répertoire Awale.
+```bash
+ cd Awalé
+```  
 Utilisez le `Makefile` pour compiler l’application :
 ```bash
  make
