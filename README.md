@@ -6,19 +6,21 @@ Bienvenue dans l’application de jeu Awalé ! Ce guide explique comment utilise
 
 Awalé est un jeu de stratégie, cette application permet de jouer à ce jeu en ligne via un système client-serveur. Le serveur permet de :
 - Jouer contre d’autres joueurs.
+- Afficher les joueurs et les parties en cours.
+- Gérer une liste d'amis.
 - Observer des parties en cours.
+- Limiter les observateurs à votre liste d'amis
 - Participer à des discussions globales ou privées.
-- modifier et afficher votre bio.
+- Modifier et afficher votre bio.
+- Enregistrer une partie dans un fichier
+- (non fonctionnel) Afficher une partie enregistrée.
 
 ---
 
 ## 2 - Démarrage
 ### Compilation
-1. Placez-vous dans le répertoire Awale.
-```bash
-cd Awalé
-```   
-2. Utilisez le `Makefile` pour compiler l’application :
+Placez-vous dans le répertoire Awale.
+Utilisez le `Makefile` pour compiler l’application :
 ```bash
  make
 ```   
