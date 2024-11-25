@@ -26,6 +26,7 @@
 #define ADD_FRIEND "16"
 #define SWITCH_PRIVACY "17"
 #define ADD_SAVE_FILE "18"
+#define LOAD_SAVE_FILE "19"
 
 // input commands from user
 #define CMD_DISCONNECT "/disconnect"
@@ -45,6 +46,7 @@
 #define CMD_ADD_FRIEND "/mkfriend"
 #define CMD_SWITCH_PRIVACY "/switch privacy"
 #define CMD_SAVE_FILE "/save"
+#define CMD_LOAD_SAVE "/load save"
 
 #define DISCONNECTED_SERVER "Serveur déconnecté, ressayer plus tard...\n"
 

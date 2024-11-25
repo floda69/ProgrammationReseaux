@@ -156,6 +156,11 @@ static void app(const char *address, const char *name)
             memmove(buffer, buffer + strlen(CMD_SAVE_FILE) + 1, strlen(buffer) - strlen(CMD_SAVE_FILE));
             write_server(sock, serialize_message(ADD_SAVE_FILE, buffer));
          }
+         // afficher une partie sauvée
+         else if (!strncmp(buffer, CMD_LOAD_SAVE, strlen(CMD_LOAD_SAVE))){
+            memmove(buffer, buffer + strlen(CMD_LOAD_SAVE) + 1, strlen(buffer) - strlen(CMD_LOAD_SAVE));
+            write_server(sock, serialize_message(LOAD_SAVE_FILE, buffer));
+         }
          else
             printf("%sInvalid command.%s\n", RED, COLOR_RESET);
       }

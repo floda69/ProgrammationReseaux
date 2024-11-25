@@ -240,6 +240,10 @@ static void app(void)
                   {
                      strncpy(clients[i].savePath, buffer + 2, BIO_SIZE - 1);
                   }
+                  else if (strncmp(buffer, LOAD_SAVE_FILE, 2) == 0)
+                  {
+                     send_save(clients[i]);
+                  }
                }
                break;
             }
@@ -470,8 +474,6 @@ static void send_game(Awale *game, Client *clients, int actual)
    serialize_awale(game, message + 2, BUF_SIZE - 3);
    int index1 = get_player_index_by_name(clients, game->j1, actual);
    int index2 = get_player_index_by_name(clients, game->j2, actual);
-   save_game(clients[index1].savePath, message + 2, game->turn);
-   save_game(clients[index2].savePath, message + 2, game->turn);
    write_client(clients[index1].sock, message);
    write_client(clients[index2].sock, message);
    for (int i = 0; i < actual; i++)
@@ -506,6 +508,11 @@ static void play(int case_choisie, Client *clients, Client client, int actual, A
       {
          jouer_coup(&games[index_game], games[index_game].turn, case_choisie);
          games[index_game].turn = 1 - games[index_game].turn;
+
+         char message[BUF_SIZE];
+         serialize_awale(&games[index_game], message, BUF_SIZE);
+         save_game(client.savePath, message);
+
          send_game(&games[index_game], clients, actual);
          if (fin_de_jeu(&games[index_game]))
          {
@@ -716,7 +723,7 @@ static void switch_client_chat_mode(Client *client)
    printf(" à %d\n", client->isInGlobalChatMode);
 }
 
-static int save_game(const char *file, const char *buffer, int turn)
+static int save_game(const char *file, const char *buffer)
 {
    // char turn_number[BUF_SIZE];
    // snprintf(turn_number, sizeof(turn_number), "%d", turn);
@@ -771,6 +778,32 @@ static int save_game(const char *file, const char *buffer, int turn)
       cJSON_Delete(partie);
       return 1;
    }
+}
+
+static void send_save(Client client)
+{
+   char *json_partie = read_file(client.savePath);
+
+   // parser string vers objet JSON
+   cJSON *partie = cJSON_Parse(json_partie);
+   free(json_partie);
+   if (partie == NULL)
+   {
+      perror("Erreur lors du parsing du JSON\n");
+      return 0;
+   }
+
+   cJSON *item = NULL;
+   cJSON_ArrayForEach(item, partie)
+   {
+      char message[BUF_SIZE];
+      memset(message, 0, BUF_SIZE);
+      strncpy(message, GAME, BUF_SIZE - 1);
+      strncat(message, item->valuestring, BUF_SIZE - 1);
+      write_client(client.sock, message);
+   }
+   // !!! nettoyage
+   cJSON_Delete(partie);
 }
 
 static int init_connection(void)
